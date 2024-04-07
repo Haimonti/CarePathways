@@ -1,0 +1,748 @@
+index,Null counts
+age,0
+sex,0
+height,0
+weight,0
+smoking_history,0
+year_they_quit,0
+previous_er_visit_within_14_days,0
+admission_disposition,0
+Hypertension,0
+Chronic cardiac disease (not hypertension),0
+Diabetes,0
+History of cancer [now in remission],0
+Other,0
+Kidney disease,0
+Obesity,0
+Asthma,0
+Rheumatologic disorder,0
+Dementia [any etiology],0
+Chronic pulmonary (lung) disease,0
+Pregnancy,0
+Stroke,0
+Cancer [active only],0
+Liver disease,0
+Chronic renal,0
+Chronic neurological disorder,0
+Hematological,0
+reason_for_admission_ARDS (adult respiratory distress syndrome) [J80],0
+reason_for_admission_Acquired respiratory distress syndrome [J80],0
+reason_for_admission_Atypical pneumonia [J18.9],0
+reason_for_admission_COVID-19 [U07.1],0
+reason_for_admission_COVID-19 determined by clinical diagnostic criteria [U07.2],0
+reason_for_admission_COVID-19 virus infection [U07.1],0
+reason_for_admission_COVID-19 with multiple comorbidities [U07.1],0
+reason_for_admission_Coronavirus infection [B34.2],0
+reason_for_admission_Cough [R05],0
+"reason_for_admission_Febrile respiratory illness [J98.9, R50.9]",0
+reason_for_admission_Fever [R50.9],0
+reason_for_admission_Fever of unknown origin [R50.9],0
+reason_for_admission_Hypoxemia [R09.0],0
+reason_for_admission_Hypoxia [R09.0],0
+reason_for_admission_Hypoxic [R09.0],0
+reason_for_admission_Myalgia [M79.19],0
+reason_for_admission_Pneumonia [J18.9],0
+"reason_for_admission_Pneumonia due to 2019-nCoV [U07.1, J12.8]",0
+"reason_for_admission_Pneumonia due to COVID-19 virus [U07.1, J12.8]",0
+reason_for_admission_Respiratory distress [R06.0],0
+reason_for_admission_Respiratory failure [J96.99],0
+reason_for_admission_Respiratory tract infection [J98.8],0
+reason_for_admission_Shortness of breath [R06.0],0
+"reason_for_admission_Shortness of breath with exposure to COVID-19 virus [R06.0, U07.2]",0
+reason_for_admission_Suspected COVID-19 virus infection [U07.2],0
+reason_for_admission_Tachypnea [R06.8],0
+reason_for_admission_Viral pneumonia [J12.9],0
+Tylenol Extra Strength,0
+Rosuvastatin,0
+Pantoprazole,0
+Norvasc,0
+Dulcolax,0
+Wellbutrin Xl,0
+Cholecalciferol,0
+Ferrous Fumarate Sct Tab,0
+Lactulose,0
+Keppra,0
+Glucophage,0
+Pantoloc,0
+Clearlax,0
+Altace Cap,0
+Clozapine,0
+Senekot,0
+Candesartan,0
+Acetylsalicylic Acid Tab,0
+Zyloprim,0
+Proscar,0
+Lasix Tabs,0
+Hydromorphone,0
+Sinemet,0
+Senokot,0
+Imovane,0
+Trazodone,0
+Apixaban,0
+Ascorbic Acid Tab,0
+Bisoprolol,0
+Calcium Carbonate,0
+Remeron,0
+Metformin,0
+Perindopril,0
+Amlodipine,0
+Cyanocobalamin,0
+Salbutamol Sulfate Hfa,0
+Empagliflozin,0
+Diltiazem,0
+Metolazone,0
+Gliclazide,0
+Perindopril Erbumine,0
+Atorvastatin,0
+Metoprolol Tartrate,0
+Furosemide,0
+Terazosin,0
+Acetaminophen,0
+Colchicine,0
+Ultibro Beezhaler,0
+Itagliptin-Metformin,0
+Prolia,0
+Dextromethorphan,0
+Palafer,0
+Advair Diskus,0
+Rivaroxaban,0
+Synthroid,0
+Zestril,0
+Lorazepam,0
+Melatonin,0
+Ventolon,0
+Spiriva Respimat,0
+Pms Trazodone Hcl Tab,0
+Methotrexate Tab,0
+Percocet,0
+Folic Acid Tablets,0
+Hydrocorisone Acetate,0
+Citalopram,0
+Atenolol,0
+Crestor,0
+Ramipril,0
+Amlodipine Besylate,0
+Vitamin D3,0
+Polyethylene Glycol,0
+Quetiapine Fumarate,0
+Sennosides,0
+Acetaminophen Tab,0
+Escitalopram,0
+Ferrous Fumarate,0
+Fluticasone Propion-Salmeterol,0
+Eliquis,0
+Pregabalin,0
+Zolpidem,0
+Levothyroxine,0
+Dextromethorphan Cough Syrup,0
+Metoprolol,0
+Coumadin,0
+Denosumab,0
+Donepezil,0
+Vitalux Advanced Multivitamin,0
+Systane,0
+Propylene Glycol,0
+Acetylsalicylic Acid,0
+Azelastine-Fluticasone,0
+Gabapentin,0
+Pantoprazole Magnesium,0
+Salbutamol Sulfate,0
+Janumet,0
+Clavulin Tab,0
+Insulin Glargine,0
+Duloxetine,0
+Tamsulosin,0
+Amoxicillin/Clavulanate,0
+Diabeta,0
+Indapamide,0
+Simvastatin,0
+Ativan Tab,0
+Flomax Cr,0
+Aspririn,0
+Bimatoprost,0
+Indomethacin,0
+Losartan,0
+Multivitamin,0
+Nitroglycerin,0
+Trehalose,0
+Flovent,0
+Levofloxacin,0
+Non Formulary - Ultracran,0
+Omega 3,0
+Duloxetine Dr,0
+Januvia,0
+Lipitor,0
+Forxiga,0
+Motrin Tablets,0
+Multivitamins,0
+Librax,0
+Spiriva,0
+Vitamin B Complex Tab,0
+Calcium Vitamin D,0
+Amaryl,0
+Novomix,0
+Trajenta,0
+Glycomet Trio 2,0
+Olmetec,0
+Isopto Tears,0
+Avapro,0
+Aspirin Tablets,0
+Symbicort Turbuhaler,0
+Ezetrol,0
+Lipidil Ez,0
+Cordarone,0
+Plavix,0
+Jardiance,0
+Diamicron Mr,0
+Hydrodiuril Tab,0
+Lozide,0
+Coversyl,0
+Pariet,0
+Entericcoated Tablet,0
+Regular Strength Tylenol Cold Nighttime Caplet,0
+Flovent Hfa,0
+Avodart,0
+Lantus Solostar,0
+Centrum,0
+Androgel,0
+Jentadueto,0
+Myfortic,0
+Pravachol,0
+Prednisone,0
+Septra,0
+Tacrolimus,0
+Atacand,0
+Vigamox,0
+Mometasone-Formoterol,0
+Seebri Breezhaler,0
+Moxifloxacin Ophthalmic Solution,0
+Voltaren Tab,0
+Ventolin Inhaler Aem,0
+Elavil Tablet,0
+Humulin N Nph,0
+Zocor,0
+Novorapid,0
+Moxifloxacin,0
+Rabeprazole,0
+Amoxicillin Tab,0
+Entresto,0
+Aspirin Tab Usp,0
+Allopurinol,0
+Adalat Xl Tab,0
+Insulin Mix,0
+Humalog Mix,0
+Humalog Mix (Pen),0
+Cymbalta,0
+Sinemet Cr,0
+Slow K,0
+Atacand Plus,0
+Altace,0
+Sennosides With Docusate Sodium,0
+Fosavance,0
+Reactine,0
+Mirapex,0
+Diclofenac Emugel,0
+Nitrolingual Spray Eam,0
+Azithromycin,0
+Flomax,0
+Coversyl Plus,0
+Lantus,0
+Dutasteride,0
+Synthroid Tab Tab,0
+Metformin Tablets,0
+Xanax,0
+Ritalin,0
+Micardis Tab,0
+Twynsta,0
+Vitamin B12,0
+Abilify,0
+Fesoterodine,0
+Cipralex,0
+Centrum Select Tab,0
+Cyanocobalamin Inj,0
+Motilium Tab,0
+Magnesium Citrate Caplet,0
+Seroquel,0
+Exelon,0
+Timolol,0
+Insulin Degludec,0
+Insulin Lispro,0
+Fosrenol,0
+Sensipar,0
+Replavite,0
+Glumetza,0
+Ozempic,0
+Tresiba,0
+Ralivia,0
+Ventolin Hfa,0
+Calcitriol,0
+Lyrica,0
+Losec,0
+Ferrous Gluconate Tablet,0
+Maxeran Tab,0
+Flovent Diskus,0
+Arthrotec,0
+Omnaris,0
+Flovent Inhalersaem Inhorlactuation,0
+Lantus Solosstar,0
+Ferrous Sulfate Tab,0
+Toujeo Doublestar,0
+Desyrel Tab,0
+Diovan,0
+Gliclazide Tab,0
+Ferrous Fumarate Tab,0
+Lyderm Cream,0
+Elocom Ointment,0
+Pregvit Folic,0
+Imodium Cap,0
+Pregvit-5,0
+Decadron Tab,0
+Imuran,0
+Apresoline Tablets,0
+Lopresor,0
+Mestinon,0
+Mecobalamin,0
+Tenormin,0
+Vitamin B (Cyanocobalamin) Caplet,0
+Cortate,0
+Koffex Dm,0
+Aldactone,0
+Vitalux,0
+Ezetimibe,0
+Linagliptin,0
+Risperidone,0
+Salmeterol,0
+Mevacor,0
+Cefuroxime,0
+Metadol,0
+Naprosyn,0
+Cardizem Cd,0
+Eprex Sterile Solution Iu,0
+Sertraline,0
+Actonel,0
+Advagraf,0
+Lanoxin Tab,0
+Septra Ds Tablets,0
+Incruse Ellipta,0
+Tylenol W Codeine No Tab,0
+Peg3350-Electrolytes Oral,0
+Phosphate,0
+Aripiprazole,0
+Lumigan Rc,0
+Aricept,0
+Simbrinza,0
+Calcium,0
+Vitamin B-6,0
+Ventolin Inhaler Hfa,0
+Hycodan Syrup,0
+Zenhale,0
+Pennsaid,0
+Viacoram,0
+Ascorbic Acid Tab Usp W Nonmed Cherry,0
+Reactine Tablet,0
+Colace,0
+Soflax,0
+Singular,0
+Fucidin Ointment,0
+Tramacet,0
+Clotrimazole-Betamethasone,0
+Ergocalciferol,0
+Opticrom Liq,0
+Alfacalcidol,0
+Breo Ellipta,0
+Lasix Tab,0
+Senokot S,0
+Blexten,0
+Neoral,0
+Lipidil,0
+Zopiclone,0
+Asacol,0
+Irbesartan,0
+Ultibro Breezhaler,0
+Ventolin,0
+Bystolic,0
+Atenolol.1,0
+ Chlorthalidone,0
+Synjardy,0
+Humalog,0
+Semaglutide,0
+Trandolapril,0
+Femara,0
+Serc,0
+Calcium Antacid,0
+Vitamin B Cyanocobalamine,0
+Metamucil,0
+Tylenol Arthritis Pain H,0
+Synthroid Tab,0
+Silodosin,0
+Risperdal,0
+Vitamin D3/Bioflavinoids/Pepper Ext,0
+Betamethasone,0
+Advil Tablets,0
+Leflunomide,0
+Bricanyl Turbuhaler,0
+Propanolol,0
+Salazopyrin Tab,0
+Extra Strength Tylenol Complete Cold,0
+ Cough &Amp; Flu Plus Mucus Relief Nighttime,0
+Zantac,0
+Nystatin,0
+Lax A Fibre,0
+Janumet Xr,0
+Gravol Tablets,0
+Lopressor,0
+Vitamin B Tab,0
+Cefzil Tablets,0
+Vasotec,0
+Actonel Dr,0
+Vidextra,0
+Vitamin C Tab,0
+Salofalk,0
+Celexa,0
+Pyridoxine Tab,0
+Calcium Vit D3 Magnesium,0
+Melatonin Magnesium Citrate,0
+Fish Oil,0
+Brilinta,0
+Accupril Tab,0
+Alendronate,0
+Combigan,0
+Lamisil,0
+Travatan,0
+Caduet,0
+Chlorthalidone,0
+Celebrex,0
+Dilantin,0
+Atarax Cap,0
+Hydrea Cap,0
+Coreg,0
+Apresoline,0
+Apidra,0
+Tylenol With Codeine No,0
+Emend Tripack,0
+Benadryl Capsules,0
+Dilaudid,0
+Zofran Tab,0
+Atrovent Nasal Aerosol Aem,0
+Vitamin D,0
+Tylenol,0
+Peglyte Solution,0
+Potassium Chloride,0
+Xarelto,0
+Keflex,0
+Pravastatin,0
+Doxepin,0
+Clopidogel,0
+Alvesco,0
+Loniten,0
+Inspiolto Respimat,0
+Betahistine,0
+Lipidil Supra,0
+Depo-Medrol,0
+Koffex Dm + Decongestant Syrup,0
+Hydrochlorothiazide,0
+Vancocin,0
+Plaquenil,0
+Candesartan-Hydrochlorothiazide,0
+Invega,0
+Detrol,0
+Effexor Xr,0
+Humulin R,0
+Amoxil Cap,0
+Advil Caplets,0
+Salbutamol Sulphate,0
+Labetalol,0
+Vitamin D-3,0
+Coreg (Carvedilol) Tablets,0
+Unnamed: 456,0
+Clavulin,0
+Vitamin B-12 (Cyanocobalamin) Caplet,0
+Zoloft,0
+Tamsulosin Sr,0
+Tiotropium-Olodaterol,0
+Trandate Tab,0
+Iron Supplement,0
+Jakavi,0
+Voltaren Emulgel,0
+Salinex Nasal Lubricant,0
+Phenylephrine Hydrochloride,0
+Ibuprofen,0
+Tegretol,0
+Colace Cap,0
+Sutent,0
+Betaderm,0
+Lasix,0
+Advil Extra Strength Caplets,0
+Toujeo Solostar,0
+Invokana,0
+Budesonide,0
+Statex Tab,0
+Axid,0
+Prochlorperazine,0
+Anusol Plus Ointment,0
+Divalproex,0
+Quetiapine,0
+Fluticasone,0
+Zyprexa,0
+Telmisartan,0
+Epival,0
+Pepcid Tab,0
+Detrol La,0
+Rocaltrol,0
+Depakene,0
+Flamazine,0
+Prolensa,0
+Repatha,0
+Mydfrin,0
+Mydriacyl,0
+Tylenol Extra Strength Caplets,0
+Lansoprazole,0
+Maxidex,0
+Risedronate,0
+Frisium Tab,0
+Tiazac,0
+Magnesium Bisglycinate,0
+Methylprednisolone Acetate Sus,0
+Vitamin C,0
+Ventolin Nebules Pf,0
+Prevacid,0
+Remeron Rd,0
+Pegalax,0
+Venlafaxine,0
+Topiramate,0
+Oxybutynin,0
+Olanzapine,0
+Humalog Mix (Cartridge),0
+Ativan,0
+Clotrimaderm,0
+Xigduo,0
+Mavik,0
+Levocarbidopa,0
+Midodrine,0
+Zovirax,0
+Cozaar,0
+Rapaflo,0
+Ketoderm Cream,0
+Timoptic,0
+Travatan Z,0
+Orencia,0
+Mucositis Mouthwash,0
+Zofran,0
+Pradaxa,0
+Enablex,0
+Ebixa,0
+Tylenol Regular Strength,0
+Tamiflu,0
+Magnesium Oxide Tab,0
+Potassium Citrate,0
+Selenium Tab,0
+Olmetec Plus,0
+Sectral,0
+Aspirin,0
+Rivanase Aqnasal Spray Metered Dose,0
+Cilazapril,0
+Epipen,0
+Temodal,0
+Salbutamol,0
+Atrovent,0
+Cyclobenzaprine,0
+Calcium Liquid,0
+Irbesartanhctz,0
+Nifedipine,0
+Sandoz Perindopril Erbumine,0
+Seroquel Xr,0
+Canesten Vaginal Inserts,0
+Motilium,0
+Advair,0
+Isordil,0
+Zithromax,0
+Toradol,0
+Zinc Gluconate,0
+Omega 3-Dha-Epa-Fish Oil Oral,0
+Premarin,0
+Ciprofloxacin,0
+Rivotril Tab,0
+Doxycin,0
+Truvada,0
+Methadone,0
+Micardis Plus,0
+Desyrel,0
+Diltiazem Tablets,0
+Latanoprost,0
+Atovarvastatin,0
+Tylenol With Codeine No 2,0
+Cordarone Tab,0
+Tecta,0
+Fosamax,0
+Calcium Chewable,0
+Folic Acid,0
+Methylcobalamin,0
+Zinc Gluconate Tab,0
+Novorapid Lantus 0-33-30,0
+Budesonide-Formoterol,0
+Enoxaparin,0
+Canagliflozin,0
+Hydropchlorothiazide,0
+Sitagliptin,0
+Sandoz Tamsulosin Cr,0
+Tiotropium Bromide,0
+Propranolol,0
+Dapagliflozin,0
+K-Dur,0
+Tympanex (Docusate Sodium,0
+Linagliptin-Metformin,0
+Hydrochlrothiazide,0
+Cytoxan Tab,0
+Dexamethasone,0
+Sitagliptin-Metformin,0
+Coversyl Plus Hd,0
+Albuterol,0
+Asprin,0
+Vit -D,0
+Symmetrel Capsules,0
+Stalevo,0
+Vit D 3,0
+Exetimibe,0
+Neupro,0
+Atacand Tab,0
+Cyanocobalamin Vit B-12,0
+Doxazosin,0
+Tresiba Flex Touch,0
+Lopril,0
+Hydrochlorothizide,0
+Pantaprazole,0
+Proclorperazine,0
+Adalat Xl,0
+Diovan-Hct,0
+Bupropion Xl,0
+Acetylsalicyclic Acid,0
+Micardis,0
+Memantine,0
+Diltiazem Xc,0
+Domperidone,0
+Rebeprazole,0
+Diamicron,0
+Toradol Tab,0
+Hydralazine,0
+Isordril,0
+Zantac Tab,0
+Coumadin Tab,0
+Ascorbic Acid Tab Orange Flavor,0
+Pharma-D,0
+Celebrix,0
+Plendil,0
+Clavulin F Tab,0
+Tegretol Cr Tab,0
+Neurontin,0
+Valproic,0
+Sodium Bicarbonate,0
+Hytrin,0
+Tylenol W Codeine No 2,0
+Tylenol W Codeine No 3,0
+Ferrous Gluconate,0
+Sandoz Gliclazide Mr,0
+Spironolactone,0
+Warfarin,0
+Insulin Lantus,0
+Dulagutide,0
+Olmesartan/Hctz,0
+Prenatal Vitamin And Mineral Supplement Tab,0
+Ascorbic Acid,0
+Insulin Aspart,0
+Xalacom,0
+Acetamiophen,0
+Dymista,0
+Pataday,0
+Terazocin,0
+Colchicine Tab,0
+Aluminum-Magnesium Hydroxide (Almagel),0
+Atorvastatin (Lipitor),0
+Empagliflozin (Jardiance),0
+Levothyroxine (Synthroid),0
+Metformin (Glucophage),0
+Pantoprazole (Pantoloc),0
+Prenatal Vit #109-Iron Gluc-Fa (Total One Maternity) 27 Mg Iron-,0
+Telmisartan-Amlodipine (Twynsta),0
+Amlodipine (Norvasc),0
+Cholestyramine-Aspartame (Questran) 4 Gram/5 Gram Powder In Packet,0
+Sertraline (Zoloft),0
+Sandoz Bisoprolol,0
+Monopril Tab,0
+Vit B-12,0
+(Lantus Solostar),0
+Mometasone,0
+Vit-D-3,0
+Lopressor Sr,0
+Sandoz Diltiazem Cd,0
+Bisacodyl,0
+Cinacalcet,0
+Humulin,0
+Renagel,0
+Voltaren Sr,0
+Doxycycline,0
+Cytotec,0
+Eprex,0
+Ferrous Sulphate,0
+Solystat,0
+Dexilant,0
+Eligard,0
+Omega,0
+Paxil Tab,0
+Magnesium Gluconate,0
+Humalog Pen,0
+Atrovent Hfa,0
+Nasonex,0
+Sulcrate,0
+Tylenol Arthritis Pain,0
+Peridex Oral Rinse,0
+Catapres Tab,0
+Decadron,0
+Ferrous Gluconate Tab,0
+Levemir Flextouch,0
+B (Methylcobalamin),0
+Calcium Sandoz Forte,0
+Aprepitant,0
+Lioresal Tab,0
+Fentanyl Transdermal System,0
+Mirtazapine,0
+Aspirin Enteric Coated Caplet,0
+Olmesartan,0
+Rhinocort Aqua,0
+Cranberry Fruit Concentrate,0
+Prevacid Fastab,0
+Duotrav Pq,0
+Anoro Ellipta,0
+Viread,0
+Levaquin,0
+Tudorza Genuair,0
+Glucobay,0
+Finasteride,0
+Onglyza,0
+Zestoretic,0
+Hyzaar,0
+Oxycodoneacetaminophen,0
+Voltaren,0
+Nicorette Gum,0
+Sodium Bicarbonate Tab,0
+Prozac,0
+Tylenol Extra Strength),0
+Fenofibrate,0
+Hydrodiuril,0
+Trandate,0
+Vitamin C Ascorbic Acid Tab,0
+Lectopam Tab,0
+Ipratropium Bromide,0
+Salbutamol Hfa,0
+Muscle &Amp; Back Pain Relief Caplets,0
+Xultophy,0
+Respiractin,0
+Immunity Advance,0
+Vesicare,0
+Zaxine,0
+Quinine Sulfate,0
+Desvenlafaxine,0
+Glucosamine,0
+Turmeric,0
+Cogentin Tab,0
+Elavil,0
+hospital_length_of_stay,0

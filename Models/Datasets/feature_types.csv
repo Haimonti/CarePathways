@@ -1,0 +1,747 @@
+,Type,Column Name
+0,Comorbidities,Hypertension
+1,Comorbidities,Chronic cardiac disease (not hypertension)
+2,Comorbidities,Diabetes
+3,Comorbidities,History of cancer [now in remission]
+4,Comorbidities,Other
+5,Comorbidities,Kidney disease
+6,Comorbidities,Obesity
+7,Comorbidities,Asthma
+8,Comorbidities,Rheumatologic disorder
+9,Comorbidities,Dementia [any etiology]
+10,Comorbidities,Chronic pulmonary (lung) disease
+11,Comorbidities,Pregnancy
+12,Comorbidities,Stroke
+13,Comorbidities,Cancer [active only]
+14,Comorbidities,Liver disease
+15,Comorbidities,Chronic renal
+16,Comorbidities,Chronic neurological disorder
+17,Comorbidities,Hematological
+18,Personal,age
+19,Personal,sex
+20,Personal,height
+21,Personal,weight
+22,Personal,smoking_history
+23,Personal,previous_er_visit_within_14_days
+24,Personal,admission_disposition
+25,Medications,Tylenol Extra Strength
+26,Medications,Rosuvastatin
+27,Medications,Pantoprazole
+28,Medications,Norvasc
+29,Medications,Dulcolax
+30,Medications,Wellbutrin Xl
+31,Medications,Cholecalciferol
+32,Medications,Ferrous Fumarate Sct Tab
+33,Medications,Lactulose
+34,Medications,Keppra
+35,Medications,Glucophage
+36,Medications,Pantoloc
+37,Medications,Clearlax
+38,Medications,Altace Cap
+39,Medications,Clozapine
+40,Medications,Senekot
+41,Medications,Candesartan
+42,Medications,Acetylsalicylic Acid Tab
+43,Medications,Zyloprim
+44,Medications,Proscar
+45,Medications,Lasix Tabs
+46,Medications,Hydromorphone
+47,Medications,Sinemet
+48,Medications,Senokot
+49,Medications,Imovane
+50,Medications,Trazodone
+51,Medications,Apixaban
+52,Medications,Ascorbic Acid Tab
+53,Medications,Bisoprolol
+54,Medications,Calcium Carbonate
+55,Medications,Remeron
+56,Medications,Metformin
+57,Medications,Perindopril
+58,Medications,Amlodipine
+59,Medications,Cyanocobalamin
+60,Medications,Salbutamol Sulfate Hfa
+61,Medications,Empagliflozin
+62,Medications,Diltiazem
+63,Medications,Metolazone
+64,Medications,Gliclazide
+65,Medications,Perindopril Erbumine
+66,Medications,Atorvastatin
+67,Medications,Metoprolol Tartrate
+68,Medications,Furosemide
+69,Medications,Terazosin
+70,Medications,Acetaminophen
+71,Medications,Colchicine
+72,Medications,Ultibro Beezhaler
+73,Medications,Itagliptin-Metformin
+74,Medications,Prolia
+75,Medications,Dextromethorphan
+76,Medications,Palafer
+77,Medications,Advair Diskus
+78,Medications,Rivaroxaban
+79,Medications,Synthroid
+80,Medications,Zestril
+81,Medications,Lorazepam
+82,Medications,Melatonin
+83,Medications,Ventolon
+84,Medications,Spiriva Respimat
+85,Medications,Pms Trazodone Hcl Tab
+86,Medications,Methotrexate Tab
+87,Medications,Percocet
+88,Medications,Folic Acid Tablets
+89,Medications,Hydrocorisone Acetate
+90,Medications,Citalopram
+91,Medications,Atenolol
+92,Medications,Crestor
+93,Medications,Ramipril
+94,Medications,Amlodipine Besylate
+95,Medications,Vitamin D3
+96,Medications,Polyethylene Glycol
+97,Medications,Quetiapine Fumarate
+98,Medications,Sennosides
+99,Medications,Acetaminophen Tab
+100,Medications,Escitalopram
+101,Medications,Ferrous Fumarate
+102,Medications,Fluticasone Propion-Salmeterol
+103,Medications,Eliquis
+104,Medications,Pregabalin
+105,Medications,Zolpidem
+106,Medications,Levothyroxine
+107,Medications,Dextromethorphan Cough Syrup
+108,Medications,Metoprolol
+109,Medications,Coumadin
+110,Medications,Denosumab
+111,Medications,Donepezil
+112,Medications,Vitalux Advanced Multivitamin
+113,Medications,Systane
+114,Medications,Propylene Glycol
+115,Medications,Acetylsalicylic Acid
+116,Medications,Azelastine-Fluticasone
+117,Medications,Gabapentin
+118,Medications,Pantoprazole Magnesium
+119,Medications,Salbutamol Sulfate
+120,Medications,Janumet
+121,Medications,Clavulin Tab
+122,Medications,Insulin Glargine
+123,Medications,Duloxetine
+124,Medications,Tamsulosin
+125,Medications,Amoxicillin/Clavulanate
+126,Medications,Diabeta
+127,Medications,Indapamide
+128,Medications,Simvastatin
+129,Medications,Ativan Tab
+130,Medications,Flomax Cr
+131,Medications,Aspririn
+132,Medications,Bimatoprost
+133,Medications,Indomethacin
+134,Medications,Losartan
+135,Medications,Multivitamin
+136,Medications,Nitroglycerin
+137,Medications,Trehalose
+138,Medications,Flovent
+139,Medications,Levofloxacin
+140,Medications,Non Formulary - Ultracran
+141,Medications,Omega 3
+142,Medications,Duloxetine Dr
+143,Medications,Januvia
+144,Medications,Lipitor
+145,Medications,Forxiga
+146,Medications,Motrin Tablets
+147,Medications,Multivitamins
+148,Medications,Librax
+149,Medications,Spiriva
+150,Medications,Vitamin B Complex Tab
+151,Medications,Calcium Vitamin D
+152,Medications,Amaryl
+153,Medications,Novomix
+154,Medications,Trajenta
+155,Medications,Glycomet Trio 2
+156,Medications,Olmetec
+157,Medications,Isopto Tears
+158,Medications,Avapro
+159,Medications,Aspirin Tablets
+160,Medications,Symbicort Turbuhaler
+161,Medications,Ezetrol
+162,Medications,Lipidil Ez
+163,Medications,Cordarone
+164,Medications,Plavix
+165,Medications,Jardiance
+166,Medications,Diamicron Mr
+167,Medications,Hydrodiuril Tab
+168,Medications,Lozide
+169,Medications,Coversyl
+170,Medications,Pariet
+171,Medications,Entericcoated Tablet
+172,Medications,Regular Strength Tylenol Cold Nighttime Caplet
+173,Medications,Flovent Hfa
+174,Medications,Avodart
+175,Medications,Lantus Solostar
+176,Medications,Centrum
+177,Medications,Androgel
+178,Medications,Jentadueto
+179,Medications,Myfortic
+180,Medications,Pravachol
+181,Medications,Prednisone
+182,Medications,Septra
+183,Medications,Tacrolimus
+184,Medications,Atacand
+185,Medications,Vigamox
+186,Medications,Mometasone-Formoterol
+187,Medications,Seebri Breezhaler
+188,Medications,Moxifloxacin Ophthalmic Solution
+189,Medications,Voltaren Tab
+190,Medications,Ventolin Inhaler Aem
+191,Medications,Elavil Tablet
+192,Medications,Humulin N Nph
+193,Medications,Zocor
+194,Medications,Novorapid
+195,Medications,Moxifloxacin
+196,Medications,Rabeprazole
+197,Medications,Amoxicillin Tab
+198,Medications,Entresto
+199,Medications,Aspirin Tab Usp
+200,Medications,Allopurinol
+201,Medications,Adalat Xl Tab
+202,Medications,Insulin Mix
+203,Medications,Humalog Mix
+204,Medications,Humalog Mix (Pen)
+205,Medications,Cymbalta
+206,Medications,Sinemet Cr
+207,Medications,Slow K
+208,Medications,Atacand Plus
+209,Medications,Altace
+210,Medications,Sennosides With Docusate Sodium
+211,Medications,Fosavance
+212,Medications,Reactine
+213,Medications,Mirapex
+214,Medications,Diclofenac Emugel
+215,Medications,Nitrolingual Spray Eam
+216,Medications,Azithromycin
+217,Medications,Flomax
+218,Medications,Coversyl Plus
+219,Medications,Lantus
+220,Medications,Dutasteride
+221,Medications,Synthroid Tab Tab
+222,Medications,Metformin Tablets
+223,Medications,Xanax
+224,Medications,Ritalin
+225,Medications,Micardis Tab
+226,Medications,Twynsta
+227,Medications,Vitamin B12
+228,Medications,Abilify
+229,Medications,Fesoterodine
+230,Medications,Cipralex
+231,Medications,Centrum Select Tab
+232,Medications,Cyanocobalamin Inj
+233,Medications,Motilium Tab
+234,Medications,Magnesium Citrate Caplet
+235,Medications,Seroquel
+236,Medications,Exelon
+237,Medications,Timolol
+238,Medications,Insulin Degludec
+239,Medications,Insulin Lispro
+240,Medications,Fosrenol
+241,Medications,Sensipar
+242,Medications,Replavite
+243,Medications,Glumetza
+244,Medications,Ozempic
+245,Medications,Tresiba
+246,Medications,Ralivia
+247,Medications,Ventolin Hfa
+248,Medications,Calcitriol
+249,Medications,Lyrica
+250,Medications,Losec
+251,Medications,Ferrous Gluconate Tablet
+252,Medications,Maxeran Tab
+253,Medications,Flovent Diskus
+254,Medications,Arthrotec
+255,Medications,Omnaris
+256,Medications,Flovent Inhalersaem Inhorlactuation
+257,Medications,Lantus Solosstar
+258,Medications,Ferrous Sulfate Tab
+259,Medications,Toujeo Doublestar
+260,Medications,Desyrel Tab
+261,Medications,Diovan
+262,Medications,Gliclazide Tab
+263,Medications,Ferrous Fumarate Tab
+264,Medications,Lyderm Cream
+265,Medications,Elocom Ointment
+266,Medications,Pregvit Folic
+267,Medications,Imodium Cap
+268,Medications,Pregvit-5
+269,Medications,Decadron Tab
+270,Medications,Imuran
+271,Medications,Apresoline Tablets
+272,Medications,Lopresor
+273,Medications,Mestinon
+274,Medications,Mecobalamin
+275,Medications,Tenormin
+276,Medications,Vitamin B (Cyanocobalamin) Caplet
+277,Medications,Cortate
+278,Medications,Koffex Dm
+279,Medications,Aldactone
+280,Medications,Vitalux
+281,Medications,Ezetimibe
+282,Medications,Linagliptin
+283,Medications,Risperidone
+284,Medications,Salmeterol
+285,Medications,Mevacor
+286,Medications,Cefuroxime
+287,Medications,Metadol
+288,Medications,Naprosyn
+289,Medications,Cardizem Cd
+290,Medications,Eprex Sterile Solution Iu
+291,Medications,Sertraline
+292,Medications,Actonel
+293,Medications,Advagraf
+294,Medications,Lanoxin Tab
+295,Medications,Septra Ds Tablets
+296,Medications,Incruse Ellipta
+297,Medications,Tylenol W Codeine No Tab
+298,Medications,Peg3350-Electrolytes Oral
+299,Medications,Phosphate
+300,Medications,Aripiprazole
+301,Medications,Lumigan Rc
+302,Medications,Aricept
+303,Medications,Simbrinza
+304,Medications,Calcium
+305,Medications,Vitamin B-6
+306,Medications,Ventolin Inhaler Hfa
+307,Medications,Hycodan Syrup
+308,Medications,Zenhale
+309,Medications,Pennsaid
+310,Medications,Viacoram
+311,Medications,Ascorbic Acid Tab Usp W Nonmed Cherry
+312,Medications,Reactine Tablet
+313,Medications,Colace
+314,Medications,Soflax
+315,Medications,Singular
+316,Medications,Fucidin Ointment
+317,Medications,Tramacet
+318,Medications,Clotrimazole-Betamethasone
+319,Medications,Ergocalciferol
+320,Medications,Opticrom Liq
+321,Medications,Alfacalcidol
+322,Medications,Breo Ellipta
+323,Medications,Lasix Tab
+324,Medications,Senokot S
+325,Medications,Blexten
+326,Medications,Neoral
+327,Medications,Lipidil
+328,Medications,Zopiclone
+329,Medications,Asacol
+330,Medications,Irbesartan
+331,Medications,Ultibro Breezhaler
+332,Medications,Ventolin
+333,Medications,Bystolic
+334,Medications,Atenolol.1
+335,Medications, Chlorthalidone
+336,Medications,Synjardy
+337,Medications,Humalog
+338,Medications,Semaglutide
+339,Medications,Trandolapril
+340,Medications,Femara
+341,Medications,Serc
+342,Medications,Calcium Antacid
+343,Medications,Vitamin B Cyanocobalamine
+344,Medications,Metamucil
+345,Medications,Tylenol Arthritis Pain H
+346,Medications,Synthroid Tab
+347,Medications,Silodosin
+348,Medications,Risperdal
+349,Medications,Vitamin D3/Bioflavinoids/Pepper Ext
+350,Medications,Betamethasone
+351,Medications,Advil Tablets
+352,Medications,Leflunomide
+353,Medications,Bricanyl Turbuhaler
+354,Medications,Propanolol
+355,Medications,Salazopyrin Tab
+356,Medications,Extra Strength Tylenol Complete Cold
+357,Medications, Cough &Amp; Flu Plus Mucus Relief Nighttime
+358,Medications,Zantac
+359,Medications,Nystatin
+360,Medications,Lax A Fibre
+361,Medications,Janumet Xr
+362,Medications,Gravol Tablets
+363,Medications,Lopressor
+364,Medications,Vitamin B Tab
+365,Medications,Cefzil Tablets
+366,Medications,Vasotec
+367,Medications,Actonel Dr
+368,Medications,Vidextra
+369,Medications,Vitamin C Tab
+370,Medications,Salofalk
+371,Medications,Celexa
+372,Medications,Pyridoxine Tab
+373,Medications,Calcium Vit D3 Magnesium
+374,Medications,Melatonin Magnesium Citrate
+375,Medications,Fish Oil
+376,Medications,Brilinta
+377,Medications,Accupril Tab
+378,Medications,Alendronate
+379,Medications,Combigan
+380,Medications,Lamisil
+381,Medications,Travatan
+382,Medications,Caduet
+383,Medications,Chlorthalidone
+384,Medications,Celebrex
+385,Medications,Dilantin
+386,Medications,Atarax Cap
+387,Medications,Hydrea Cap
+388,Medications,Coreg
+389,Medications,Apresoline
+390,Medications,Apidra
+391,Medications,Tylenol With Codeine No
+392,Medications,Emend Tripack
+393,Medications,Benadryl Capsules
+394,Medications,Dilaudid
+395,Medications,Zofran Tab
+396,Medications,Atrovent Nasal Aerosol Aem
+397,Medications,Vitamin D
+398,Medications,Tylenol
+399,Medications,Peglyte Solution
+400,Medications,Potassium Chloride
+401,Medications,Xarelto
+402,Medications,Keflex
+403,Medications,Pravastatin
+404,Medications,Doxepin
+405,Medications,Clopidogel
+406,Medications,Alvesco
+407,Medications,Loniten
+408,Medications,Inspiolto Respimat
+409,Medications,Betahistine
+410,Medications,Lipidil Supra
+411,Medications,Depo-Medrol
+412,Medications,Koffex Dm + Decongestant Syrup
+413,Medications,Hydrochlorothiazide
+414,Medications,Vancocin
+415,Medications,Plaquenil
+416,Medications,Candesartan-Hydrochlorothiazide
+417,Medications,Invega
+418,Medications,Detrol
+419,Medications,Effexor Xr
+420,Medications,Humulin R
+421,Medications,Amoxil Cap
+422,Medications,Advil Caplets
+423,Medications,Salbutamol Sulphate
+424,Medications,Labetalol
+425,Medications,Vitamin D-3
+426,Medications,Coreg (Carvedilol) Tablets
+427,Medications,Unnamed: 456
+428,Medications,Clavulin
+429,Medications,Vitamin B-12 (Cyanocobalamin) Caplet
+430,Medications,Zoloft
+431,Medications,Tamsulosin Sr
+432,Medications,Tiotropium-Olodaterol
+433,Medications,Trandate Tab
+434,Medications,Iron Supplement
+435,Medications,Jakavi
+436,Medications,Voltaren Emulgel
+437,Medications,Salinex Nasal Lubricant
+438,Medications,Phenylephrine Hydrochloride
+439,Medications,Ibuprofen
+440,Medications,Tegretol
+441,Medications,Colace Cap
+442,Medications,Sutent
+443,Medications,Betaderm
+444,Medications,Lasix
+445,Medications,Advil Extra Strength Caplets
+446,Medications,Toujeo Solostar
+447,Medications,Invokana
+448,Medications,Budesonide
+449,Medications,Statex Tab
+450,Medications,Axid
+451,Medications,Prochlorperazine
+452,Medications,Anusol Plus Ointment
+453,Medications,Divalproex
+454,Medications,Quetiapine
+455,Medications,Fluticasone
+456,Medications,Zyprexa
+457,Medications,Telmisartan
+458,Medications,Epival
+459,Medications,Pepcid Tab
+460,Medications,Detrol La
+461,Medications,Rocaltrol
+462,Medications,Depakene
+463,Medications,Flamazine
+464,Medications,Prolensa
+465,Medications,Repatha
+466,Medications,Mydfrin
+467,Medications,Mydriacyl
+468,Medications,Tylenol Extra Strength Caplets
+469,Medications,Lansoprazole
+470,Medications,Maxidex
+471,Medications,Risedronate
+472,Medications,Frisium Tab
+473,Medications,Tiazac
+474,Medications,Magnesium Bisglycinate
+475,Medications,Methylprednisolone Acetate Sus
+476,Medications,Vitamin C
+477,Medications,Ventolin Nebules Pf
+478,Medications,Prevacid
+479,Medications,Remeron Rd
+480,Medications,Pegalax
+481,Medications,Venlafaxine
+482,Medications,Topiramate
+483,Medications,Oxybutynin
+484,Medications,Olanzapine
+485,Medications,Humalog Mix (Cartridge)
+486,Medications,Ativan
+487,Medications,Clotrimaderm
+488,Medications,Xigduo
+489,Medications,Mavik
+490,Medications,Levocarbidopa
+491,Medications,Midodrine
+492,Medications,Zovirax
+493,Medications,Cozaar
+494,Medications,Rapaflo
+495,Medications,Ketoderm Cream
+496,Medications,Timoptic
+497,Medications,Travatan Z
+498,Medications,Orencia
+499,Medications,Mucositis Mouthwash
+500,Medications,Zofran
+501,Medications,Pradaxa
+502,Medications,Enablex
+503,Medications,Ebixa
+504,Medications,Tylenol Regular Strength
+505,Medications,Tamiflu
+506,Medications,Magnesium Oxide Tab
+507,Medications,Potassium Citrate
+508,Medications,Selenium Tab
+509,Medications,Olmetec Plus
+510,Medications,Sectral
+511,Medications,Aspirin
+512,Medications,Rivanase Aqnasal Spray Metered Dose
+513,Medications,Cilazapril
+514,Medications,Epipen
+515,Medications,Temodal
+516,Medications,Salbutamol
+517,Medications,Atrovent
+518,Medications,Cyclobenzaprine
+519,Medications,Calcium Liquid
+520,Medications,Irbesartanhctz
+521,Medications,Nifedipine
+522,Medications,Sandoz Perindopril Erbumine
+523,Medications,Seroquel Xr
+524,Medications,Canesten Vaginal Inserts
+525,Medications,Motilium
+526,Medications,Advair
+527,Medications,Isordil
+528,Medications,Zithromax
+529,Medications,Toradol
+530,Medications,Zinc Gluconate
+531,Medications,Omega 3-Dha-Epa-Fish Oil Oral
+532,Medications,Premarin
+533,Medications,Ciprofloxacin
+534,Medications,Rivotril Tab
+535,Medications,Doxycin
+536,Medications,Truvada
+537,Medications,Methadone
+538,Medications,Micardis Plus
+539,Medications,Desyrel
+540,Medications,Diltiazem Tablets
+541,Medications,Latanoprost
+542,Medications,Atovarvastatin
+543,Medications,Tylenol With Codeine No 2
+544,Medications,Cordarone Tab
+545,Medications,Tecta
+546,Medications,Fosamax
+547,Medications,Calcium Chewable
+548,Medications,Folic Acid
+549,Medications,Methylcobalamin
+550,Medications,Zinc Gluconate Tab
+551,Medications,Novorapid Lantus 0-33-30
+552,Medications,Budesonide-Formoterol
+553,Medications,Enoxaparin
+554,Medications,Canagliflozin
+555,Medications,Hydropchlorothiazide
+556,Medications,Sitagliptin
+557,Medications,Sandoz Tamsulosin Cr
+558,Medications,Tiotropium Bromide
+559,Medications,Propranolol
+560,Medications,Dapagliflozin
+561,Medications,K-Dur
+562,Medications,Tympanex (Docusate Sodium
+563,Medications,Linagliptin-Metformin
+564,Medications,Hydrochlrothiazide
+565,Medications,Cytoxan Tab
+566,Medications,Dexamethasone
+567,Medications,Sitagliptin-Metformin
+568,Medications,Coversyl Plus Hd
+569,Medications,Albuterol
+570,Medications,Asprin
+571,Medications,Vit -D
+572,Medications,Symmetrel Capsules
+573,Medications,Stalevo
+574,Medications,Vit D 3
+575,Medications,Exetimibe
+576,Medications,Neupro
+577,Medications,Atacand Tab
+578,Medications,Cyanocobalamin Vit B-12
+579,Medications,Doxazosin
+580,Medications,Tresiba Flex Touch
+581,Medications,Lopril
+582,Medications,Hydrochlorothizide
+583,Medications,Pantaprazole
+584,Medications,Proclorperazine
+585,Medications,Adalat Xl
+586,Medications,Diovan-Hct
+587,Medications,Bupropion Xl
+588,Medications,Acetylsalicyclic Acid
+589,Medications,Micardis
+590,Medications,Memantine
+591,Medications,Diltiazem Xc
+592,Medications,Domperidone
+593,Medications,Rebeprazole
+594,Medications,Diamicron
+595,Medications,Toradol Tab
+596,Medications,Hydralazine
+597,Medications,Isordril
+598,Medications,Zantac Tab
+599,Medications,Coumadin Tab
+600,Medications,Ascorbic Acid Tab Orange Flavor
+601,Medications,Pharma-D
+602,Medications,Celebrix
+603,Medications,Plendil
+604,Medications,Clavulin F Tab
+605,Medications,Tegretol Cr Tab
+606,Medications,Neurontin
+607,Medications,Valproic
+608,Medications,Sodium Bicarbonate
+609,Medications,Hytrin
+610,Medications,Tylenol W Codeine No 2
+611,Medications,Tylenol W Codeine No 3
+612,Medications,Ferrous Gluconate
+613,Medications,Sandoz Gliclazide Mr
+614,Medications,Spironolactone
+615,Medications,Warfarin
+616,Medications,Insulin Lantus
+617,Medications,Dulagutide
+618,Medications,Olmesartan/Hctz
+619,Medications,Prenatal Vitamin And Mineral Supplement Tab
+620,Medications,Ascorbic Acid
+621,Medications,Insulin Aspart
+622,Medications,Xalacom
+623,Medications,Acetamiophen
+624,Medications,Dymista
+625,Medications,Pataday
+626,Medications,Terazocin
+627,Medications,Colchicine Tab
+628,Medications,Aluminum-Magnesium Hydroxide (Almagel)
+629,Medications,Atorvastatin (Lipitor)
+630,Medications,Empagliflozin (Jardiance)
+631,Medications,Levothyroxine (Synthroid)
+632,Medications,Metformin (Glucophage)
+633,Medications,Pantoprazole (Pantoloc)
+634,Medications,Prenatal Vit #109-Iron Gluc-Fa (Total One Maternity) 27 Mg Iron-
+635,Medications,Telmisartan-Amlodipine (Twynsta)
+636,Medications,Amlodipine (Norvasc)
+637,Medications,Cholestyramine-Aspartame (Questran) 4 Gram/5 Gram Powder In Packet
+638,Medications,Sertraline (Zoloft)
+639,Medications,Sandoz Bisoprolol
+640,Medications,Monopril Tab
+641,Medications,Vit B-12
+642,Medications,(Lantus Solostar)
+643,Medications,Mometasone
+644,Medications,Vit-D-3
+645,Medications,Lopressor Sr
+646,Medications,Sandoz Diltiazem Cd
+647,Medications,Bisacodyl
+648,Medications,Cinacalcet
+649,Medications,Humulin
+650,Medications,Renagel
+651,Medications,Voltaren Sr
+652,Medications,Doxycycline
+653,Medications,Cytotec
+654,Medications,Eprex
+655,Medications,Ferrous Sulphate
+656,Medications,Solystat
+657,Medications,Dexilant
+658,Medications,Eligard
+659,Medications,Omega
+660,Medications,Paxil Tab
+661,Medications,Magnesium Gluconate
+662,Medications,Humalog Pen
+663,Medications,Atrovent Hfa
+664,Medications,Nasonex
+665,Medications,Sulcrate
+666,Medications,Tylenol Arthritis Pain
+667,Medications,Peridex Oral Rinse
+668,Medications,Catapres Tab
+669,Medications,Decadron
+670,Medications,Ferrous Gluconate Tab
+671,Medications,Levemir Flextouch
+672,Medications,B (Methylcobalamin)
+673,Medications,Calcium Sandoz Forte
+674,Medications,Aprepitant
+675,Medications,Lioresal Tab
+676,Medications,Fentanyl Transdermal System
+677,Medications,Mirtazapine
+678,Medications,Aspirin Enteric Coated Caplet
+679,Medications,Olmesartan
+680,Medications,Rhinocort Aqua
+681,Medications,Cranberry Fruit Concentrate
+682,Medications,Prevacid Fastab
+683,Medications,Duotrav Pq
+684,Medications,Anoro Ellipta
+685,Medications,Viread
+686,Medications,Levaquin
+687,Medications,Tudorza Genuair
+688,Medications,Glucobay
+689,Medications,Finasteride
+690,Medications,Onglyza
+691,Medications,Zestoretic
+692,Medications,Hyzaar
+693,Medications,Oxycodoneacetaminophen
+694,Medications,Voltaren
+695,Medications,Nicorette Gum
+696,Medications,Sodium Bicarbonate Tab
+697,Medications,Prozac
+698,Medications,Tylenol Extra Strength)
+699,Medications,Fenofibrate
+700,Medications,Hydrodiuril
+701,Medications,Trandate
+702,Medications,Vitamin C Ascorbic Acid Tab
+703,Medications,Lectopam Tab
+704,Medications,Ipratropium Bromide
+705,Medications,Salbutamol Hfa
+706,Medications,Muscle &Amp; Back Pain Relief Caplets
+707,Medications,Xultophy
+708,Medications,Respiractin
+709,Medications,Immunity Advance
+710,Medications,Vesicare
+711,Medications,Zaxine
+712,Medications,Quinine Sulfate
+713,Medications,Desvenlafaxine
+714,Medications,Glucosamine
+715,Medications,Turmeric
+716,Medications,Cogentin Tab
+717,Medications,Elavil
+718,Medications,hospital_length_of_stay
+719,Reasons for Admit,reason_for_admission_ARDS (adult respiratory distress syndrome) [J80]
+720,Reasons for Admit,reason_for_admission_Acquired respiratory distress syndrome [J80]
+721,Reasons for Admit,reason_for_admission_Atypical pneumonia [J18.9]
+722,Reasons for Admit,reason_for_admission_COVID-19 [U07.1]
+723,Reasons for Admit,reason_for_admission_COVID-19 determined by clinical diagnostic criteria [U07.2]
+724,Reasons for Admit,reason_for_admission_COVID-19 virus infection [U07.1]
+725,Reasons for Admit,reason_for_admission_COVID-19 with multiple comorbidities [U07.1]
+726,Reasons for Admit,reason_for_admission_Coronavirus infection [B34.2]
+727,Reasons for Admit,reason_for_admission_Cough [R05]
+728,Reasons for Admit,"reason_for_admission_Febrile respiratory illness [J98.9, R50.9]"
+729,Reasons for Admit,reason_for_admission_Fever [R50.9]
+730,Reasons for Admit,reason_for_admission_Fever of unknown origin [R50.9]
+731,Reasons for Admit,reason_for_admission_Hypoxemia [R09.0]
+732,Reasons for Admit,reason_for_admission_Hypoxia [R09.0]
+733,Reasons for Admit,reason_for_admission_Hypoxic [R09.0]
+734,Reasons for Admit,reason_for_admission_Myalgia [M79.19]
+735,Reasons for Admit,reason_for_admission_Pneumonia [J18.9]
+736,Reasons for Admit,"reason_for_admission_Pneumonia due to 2019-nCoV [U07.1, J12.8]"
+737,Reasons for Admit,"reason_for_admission_Pneumonia due to COVID-19 virus [U07.1, J12.8]"
+738,Reasons for Admit,reason_for_admission_Respiratory distress [R06.0]
+739,Reasons for Admit,reason_for_admission_Respiratory failure [J96.99]
+740,Reasons for Admit,reason_for_admission_Respiratory tract infection [J98.8]
+741,Reasons for Admit,reason_for_admission_Shortness of breath [R06.0]
+742,Reasons for Admit,"reason_for_admission_Shortness of breath with exposure to COVID-19 virus [R06.0, U07.2]"
+743,Reasons for Admit,reason_for_admission_Suspected COVID-19 virus infection [U07.2]
+744,Reasons for Admit,reason_for_admission_Tachypnea [R06.8]
+745,Reasons for Admit,reason_for_admission_Viral pneumonia [J12.9]
