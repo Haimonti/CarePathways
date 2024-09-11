@@ -130,15 +130,6 @@ pc <- phi.control(y, method = "extremes")
 s.y <- sort(y)
 temp <- y.relev <- phi(s.y, pc)
 
-# Selecting C.perc, need number of samples to be 504:
-# > length(obs.ind[[1]])
-# [1] 416
-# > length(obs.ind[[2]])
-# [1] 90
-# > 0.2*416
-# [1] 83.2
-# > 4.6*90
-# [1] 414
 
 
 n <- length(y)
