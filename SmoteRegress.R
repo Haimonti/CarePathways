@@ -116,7 +116,7 @@ browser(SMOGNRegress(
   pert = best_params[['pert']]
 ))
 
-thr.rel <- 0.5
+thr.rel <- 0.77
 dat <- hospital
 target_position <- 3
 C.perc <- "extreme"
@@ -124,14 +124,19 @@ dist <- "Manhattan"
 repl <- FALSE
 pert <- 0.01
 rel = "auto"
+p <- 1
 
 y <- dat[, target_position]
 pc <- phi.control(y, method = "extremes")
+
+##### rownames(dat) is null, should we assign rownames 1:nrow(dat)?
+
+attr(y, "names") <- rownames(dat)
 s.y <- sort(y)
 temp <- y.relev <- phi(s.y, pc)
 
 
-
+# Examining relevance function
 
 n <- length(y)
 Charmeth <- pc[[1]]
@@ -190,16 +195,41 @@ obj <- round((B^2/sapply(obs.ind, length)) * rescale, 2)
 C.perc <- round(obj/sapply(obs.ind, length), 1)
 
 set.seed(seed)
+
 for (i in 1:nbump) {
   if (C.perc[[i]] == 1) {
     newdata <- rbind(newdata, dat[names(obs.ind[[i]]), 
     ])
   }
   else if (C.perc[[i]] > 1) {
-    newExs <- SMOGNRegress.exs(dat, names(obs.ind[[i]]), 
-                               ncol(dat), C.perc[[i]], k, dist, p, pert)
-    newdata <- rbind(newdata, newExs, dat[names(obs.ind[[i]]), 
-    ])
+    # newExs <- SMOGNRegress.exs(dat, names(obs.ind[[i]]), 
+    #                            ncol(dat), C.perc[[i]], k, dist, p, pert)
+    # newdata <- rbind(newdata, newExs, dat[names(obs.ind[[i]]), 
+    # ])
+    
+    #### Examining SMOGNRegress.exs
+    
+    # function (orig, ind, tgt, N, k, dist, p, pert) 
+      
+    orig = dat
+    ind = names(obs.ind[[i]])
+    
+    ############# ind is null, passing 0 through the function
+    
+    tgt = ncol(dat)
+    N = C.perc[[i]]
+    k = k
+    dist = dist
+    p = p
+    pert = pert
+    
+    indpos <- match(ind, rownames(orig))
+    dat <- orig[indpos, ]
+    ConstFeat <- which(apply(dat, 2, function(col) {
+      length(unique(col)) == 1
+    }))
+    
+    
   }
   else if (C.perc[[i]] < 1) {
     sel.maj <- sample(1:length(obs.ind[[i]]), 
@@ -209,6 +239,8 @@ for (i in 1:nbump) {
     ])
   }
 }
+
+
 ###################
 
 evaluate_model <- function(params, data, seed = 123) {
@@ -298,8 +330,6 @@ x <- newdata %>%
   select(-hospital_length_of_stay)
 y <- newdata %>% 
   select(hospital_length_of_stay)
-
-seed = 123
 
 set.seed(seed)  
 
