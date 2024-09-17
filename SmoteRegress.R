@@ -1,3 +1,15 @@
+# Turn this code into a function which takes the seed and generates data
+
+# Kullback-Leibler divergence test of the distance measure of different seeds 
+# > normalize_rows <- function(mat) {
+#   +     # Apply normalization to each row
+#     +     apply(mat, 1, function(row) row / sum(row))
+#   + }
+# > normalized_matrix <- t(normalize_rows(t(temp)))
+# > 
+#   > KL(normalized_matrix)
+
+
 # Loading packages
 
 library(smotefamily)
@@ -22,6 +34,8 @@ set.seed(seed)
 # Reading in data
 
 hospital <- read.csv("new.csv")
+
+rownames(hospital) <- 1:nrow(hospital)
 
 # In order to find optimal number for k, as it is just KNN. Graph supports our 
 # grid search value of k = 2
