@@ -12,7 +12,6 @@
 
 # Loading packages
 
-library(smotefamily)
 library(dplyr)
 library(mltools)
 library(readxl)
@@ -23,6 +22,7 @@ library(keras3)
 library(ggplot2)
 library(tensorflow)
 library(factoextra)
+library(philentropy)
  
 seed = 123
 
