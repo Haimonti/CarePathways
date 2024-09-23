@@ -1,5 +1,5 @@
 library(UBL)
-library(philentropy)
+library(writexl)
 
 hospital <- read.csv("new.csv")
 rownames(hospital) <- 1:nrow(hospital)
@@ -8,13 +8,9 @@ generate <- function(data=hospital, target='hospital_length_of_stay', num=1,
                      thr.rel=0.77, y_split='auto'){
   
   seeds <- sample(100:999, num)
-  return_df <- data.frame(
-    seed = numeric(),
-    C.perc = I(list()),
-    thr.rel = numeric(),
-    HLOS = I(list())
-  )
   
+  return_dict <- {}
+
   form <- as.formula(paste(target, "~ ."))
   tgt <- which(names(data) == as.character(form[[2]]))
   
@@ -32,19 +28,19 @@ generate <- function(data=hospital, target='hospital_length_of_stay', num=1,
   bumps <- c()
   
   for (t in 1:length(thr.rel)) {
-    for (i in 1:(length(y) - 1)) {
-      if ((y.relev[i] >= thr.rel[t] && y.relev[i + 1] < thr.rel[t]) ||
-          (y.relev[i] < thr.rel[t] && y.relev[i + 1] >= thr.rel[t])) {
-        bumps <- c(bumps, i)
+    for (h in 1:(length(y) - 1)) {
+      if ((y.relev[h] >= thr.rel[t] && y.relev[h + 1] < thr.rel[t]) ||
+          (y.relev[h] < thr.rel[t] && y.relev[h + 1] >= thr.rel[t])) {
+        bumps <- c(bumps, h)
       }
     }
   
     nbump <- length(bumps) + 1
     obs.ind <- as.list(rep(NA, nbump))
     last <- 1
-    for (i in 1:length(bumps)) {
-      obs.ind[[i]] <- s.y[last:bumps[i]]
-      last <- bumps[i] + 1
+    for (b in 1:length(bumps)) {
+      obs.ind[[b]] <- s.y[last:bumps[b]]
+      last <- bumps[b] + 1
     }
     obs.ind[[nbump]] <- s.y[last:length(s.y)]
   
@@ -58,8 +54,8 @@ generate <- function(data=hospital, target='hospital_length_of_stay', num=1,
           rescale <- nbump * B/sum(B^2/sapply(obs.ind, length))
           obj <- round((B^2/sapply(obs.ind, length)) * rescale, 2)
           C_perc <- list()
-          for (i in seq_along(obj)) {
-            C_perc[[i]] <- round(obj[i] / sapply(obs.ind, length)[i], 1)
+          for (p in seq_along(obj)) {
+            C_perc[[p]] <- round(obj[p] / sapply(obs.ind, length)[p], 1)
           }
         } else {
           low_count <- round(nrow(data) * y_split[j], 2)
@@ -78,16 +74,14 @@ generate <- function(data=hospital, target='hospital_length_of_stay', num=1,
           repl = FALSE,
         )
         
-        newrow <- data.frame(seed = seeds[i], C.perc = I(list(C_perc)), 
-                             thr.rel = thr.rel[t],
-                             HLOS = I(list(newdata[[target]])))
-        return_df <- rbind(return_df, newrow)
+        name <- paste0("Seed", seeds[i], "_thr", thr.rel[t], "_perc", C_perc[j])
+        return_dict[[name]] <- newdata
       }
     }
   }
-  return(return_df)
+  return(return_dict)
 }
 
-test_df <- generate(num = 5, thr.rel = c(0.5, 0.8), y_split = c(0.3, 0.5))
+dict1 <- generate(num = 5)
 
-test_df
+write_xlsx(dict1, "SMOTERegressionCases.xlsx")
