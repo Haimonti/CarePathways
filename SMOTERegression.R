@@ -1,5 +1,6 @@
 library(UBL)
 library(writexl)
+library(tidyverse)
 
 hospital <- read.csv("new.csv")
 rownames(hospital) <- 1:nrow(hospital)
@@ -74,6 +75,8 @@ generate <- function(data=hospital, target='hospital_length_of_stay', num=1,
           repl = FALSE,
         )
         
+        newdata <- newdata %>% 
+          select(-X)
         name <- paste0("Seed", seeds[i], "_thr", thr.rel[t], "_perc", C_perc[j])
         return_dict[[name]] <- newdata
       }
