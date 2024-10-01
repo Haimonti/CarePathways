@@ -4,14 +4,19 @@ library(tidyverse)
 
 hospital <- read.csv("new.csv")
 rownames(hospital) <- 1:nrow(hospital)
+hospital_names <- read.csv("new.csv", check.names = F)
+hospital_names <- colnames(hospital_names)
+hospital_names <- hospital_names[-1]
 
-generate <- function(data=hospital, target='hospital_length_of_stay', num=1, 
-                     thr.rel=0.77, y_split='auto'){
+generate <- function(data=hospital, target='hospital_length_of_stay', 
+                     seeds=NULL, num=1, thr.rel=0.77, y_split='auto'){
   
-  seeds <- sample(100:999, num)
+  if (is.null(seeds)) {
+    seeds <- sample(100:999, num)
+  }
   
   return_dict <- {}
-
+  
   form <- as.formula(paste(target, "~ ."))
   tgt <- which(names(data) == as.character(form[[2]]))
   
@@ -35,7 +40,7 @@ generate <- function(data=hospital, target='hospital_length_of_stay', num=1,
         bumps <- c(bumps, h)
       }
     }
-  
+    
     nbump <- length(bumps) + 1
     obs.ind <- as.list(rep(NA, nbump))
     last <- 1
@@ -44,7 +49,7 @@ generate <- function(data=hospital, target='hospital_length_of_stay', num=1,
       last <- bumps[b] + 1
     }
     obs.ind[[nbump]] <- s.y[last:length(s.y)]
-  
+    
     for (i in 1:length(seeds)) {
       set.seed(seeds[i])
       
@@ -64,7 +69,7 @@ generate <- function(data=hospital, target='hospital_length_of_stay', num=1,
           high_scale <- round(high_count / length(obs.ind[[2]]), 1)
           C_perc <- list(y_split[j], high_scale)
         }
-    
+        
         newdata <- SMOGNRegress(
           form = form,
           dat = data,
@@ -77,6 +82,8 @@ generate <- function(data=hospital, target='hospital_length_of_stay', num=1,
         
         newdata <- newdata %>% 
           select(-X)
+        colnames(newdata) <- hospital_names
+        
         name <- paste0("Seed", seeds[i], "_thr", thr.rel[t], "_perc", C_perc[j])
         return_dict[[name]] <- newdata
       }
@@ -85,6 +92,6 @@ generate <- function(data=hospital, target='hospital_length_of_stay', num=1,
   return(return_dict)
 }
 
-dict1 <- generate(num = 5)
+dict1 <- generate(seeds = c(410, 527, 222, 326, 832), num = 5)
 
 write_xlsx(dict1, "SMOTERegressionCases.xlsx")
