@@ -9,7 +9,8 @@ hospital_names <- colnames(hospital_names)
 hospital_names <- hospital_names[-1]
 
 generate <- function(data=hospital, target='hospital_length_of_stay', 
-                     seeds=NULL, num=1, thr.rel=0.77, y_split='auto'){
+                     seeds=NULL, num=1, thr.rel=0.77, y_split='auto', 
+                     names = hospital_names){
   
   if (is.null(seeds)) {
     seeds <- sample(100:999, num)
@@ -82,6 +83,8 @@ generate <- function(data=hospital, target='hospital_length_of_stay',
         
         newdata <- newdata %>% 
           select(-X)
+        valid_columns <- orig.order[orig.order %in% colnames(newdata)]
+        newdata <- newdata[, valid_columns, drop = FALSE]
         colnames(newdata) <- hospital_names
         
         name <- paste0("Seed", seeds[i], "_thr", thr.rel[t], "_perc", C_perc[j])
