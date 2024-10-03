@@ -1,7 +1,8 @@
 ,Train MSE (mean ± std),Test MSE (mean ± std)
-Lasso alpha 0.1,131.62 ± 1.07,163.3 ± 9.96
-Lasso alpha 10,262.16 ± 4.45,298.9 ± 7.3
-Ridge alpha 0.1,18.17 ± 0.77,132.25 ± 10.14
-Ridge alpha 10,81.93 ± 1.77,121.86 ± 5.66
-RandomForest,7.33 ± 0.31,63.0 ± 3.59
-MLP,10.04 ± 0.8,126.75 ± 12.07
+Lasso alpha 0.1,142.84 ± 5.14,168.95 ± 15.63
+Lasso alpha 10,274.27 ± 4.3,259.66 ± 9.64
+Ridge alpha 0.1,26.12 ± 1.38,166.47 ± 12.37
+Ridge alpha 10,90.82 ± 3.21,124.57 ± 14.01
+RandomForest,9.01 ± 0.67,74.23 ± 14.13
+MLP,16.98 ± 1.09,116.07 ± 5.76
+Logistic Regression,29.66 ± 1.81,81.46 ± 17.05
