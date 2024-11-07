@@ -1,7 +1,0 @@
-,Average Train MSE,Std Train MSE,Average Test MSE,Std Test MSE
-Lasso alpha 0.1,76.96,3.08,168.5,11.76
-Lasso alpha 10,183.52,3.59,239.99,7.84
-Ridge alpha 0.1,10.72,1.19,188.37,44.78
-Ridge alpha 10,60.58,1.77,158.46,8.94
-RandomForest,9.48,0.33,119.95,10.88
-MLP,14.13,1.06,133.52,15.73
