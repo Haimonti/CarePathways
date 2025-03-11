@@ -14,7 +14,7 @@ pt_df = pd.read_csv("/content/patients.csv")
 cols = ["subject_id","admission_type","marital_status","race","admittime","dischtime"]
 df_phy_ad = ad_df[cols]
 df_phy_ad = pd.merge(df_phy_ad,pt_df[["subject_id","gender","anchor_age"]], on = "subject_id", how="outer")
-# ----- calculating LOS and appending LOS row ----------
+# ----- calculating LOS and appending LOS column ----------
 df_phy_ad['admittime'] = pd.to_datetime(df_phy_ad['admittime'])
 df_phy_ad['dischtime'] = pd.to_datetime(df_phy_ad['dischtime'])
 df_phy_ad["LOS"] = round((df_phy_ad['dischtime'] - df_phy_ad['admittime']).dt.total_seconds() / (3600*24),2)
