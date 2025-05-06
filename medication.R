@@ -1,4 +1,3 @@
-
 library(readxl)
 library(jsonlite)
 library(dplyr)
@@ -9,65 +8,103 @@ library(forcats)
 library(readr)
 library(data.table)
 
-data <- read_excel("Documents/UB/Spring 2025/Research/Canada_Hosp1_COVID_InpatientData.xlsx")
+`%||%` <- function(a, b) if (!is.null(a)) a else b
 
-Canada_Hosp1_COVID_InpatientData <- read_excel("Documents/UB/Spring 2025/Research/Canada_Hosp1_COVID_InpatientData.xlsx")
+file_path <- "Documents/UB/Spring 2025/Research/Canada_Hosp1_COVID_InpatientData.xlsx"
 
-medication_data <- data.frame(id = character(),
-                              medications = character(),
-                              dosage = character(),
-                              frequency = character(),
-                              stringsAsFactors = FALSE)
+df <- read_excel(file_path) %>%
+  mutate(id = as.character(id))
 
+medication_data <- tibble(
+  id = character(),
+  medications = character(),
+  dosage = character(),
+  frequency = character()
+)
 
-for (i in 1:nrow(Canada_Hosp1_COVID_InpatientData)) {
-  meds_string <- Canada_Hosp1_COVID_InpatientData$medications[i]
-  meds_string <- gsub('^"(.*)"$', '\\1', meds_string)  
-  meds_string <- gsub('\\\\', '', meds_string)  
+for (i in seq_len(nrow(df))) {
+  row_id <- df$id[i]
+  meds_string <- df$medications[i]
   
-  meds_list <- tryCatch(fromJSON(meds_string), error = function(e) NULL)
+  if (is.na(meds_string) || meds_string == "") {
+    medication_data <- bind_rows(medication_data, tibble(
+      id = row_id, medications = "", dosage = "", frequency = ""
+    ))
+    next
+  }
   
-  if (!is.null(meds_list) && length(meds_list) > 0) {
-    for (j in 1:length(meds_list)) {
-      medication <- ifelse(!is.null(meds_list[[j]]$medications), meds_list[[j]]$medications, NA)
-      dosage <- ifelse(!is.null(meds_list[[j]]$dosage), meds_list[[j]]$dosage, NA)
-      frequency <- ifelse(!is.null(meds_list[[j]]$frequency), meds_list[[j]]$frequency, NA)
-      
-      medication_data <- rbind(medication_data, data.frame(
-        id = Canada_Hosp1_COVID_InpatientData$id[i],
-        medications = medication,
-        dosage = dosage,
-        frequency = frequency,
-        stringsAsFactors = FALSE
+  meds_string_clean <- meds_string %>%
+    str_replace_all("[\r\n]", "") %>%
+    str_replace_all("\\\\", "") %>%
+    str_replace_all('^"|"$', "")
+  
+  meds_list <- tryCatch(
+    fromJSON(meds_string_clean),
+    error = function(e) {
+      message(sprintf("❌ JSON error at row %d (id = %s): %s", i, row_id, e$message))
+      return(NULL)
+    }
+  )
+  
+  if (is.null(meds_list) || length(meds_list) == 0) {
+    medication_data <- bind_rows(medication_data, tibble(
+      id = row_id, medications = "", dosage = "", frequency = ""
+    ))
+    next
+  }
+  
+  if (is.data.frame(meds_list)) {
+    for (j in seq_len(nrow(meds_list))) {
+      medication_data <- bind_rows(medication_data, tibble(
+        id = row_id,
+        medications = meds_list$medications[j] %||% "",
+        dosage = meds_list$dosage[j] %||% "",
+        frequency = meds_list$frequency[j] %||% ""
       ))
     }
+  } else if (is.list(meds_list)) {
+    # Fallback for list of lists
+    for (j in seq_along(meds_list)) {
+      entry <- meds_list[[j]]
+      if (is.list(entry)) {
+        medication_data <- bind_rows(medication_data, tibble(
+          id = row_id,
+          medications = entry$medications %||% "",
+          dosage = entry$dosage %||% "",
+          frequency = entry$frequency %||% ""
+        ))
+      } else {
+        medication_data <- bind_rows(medication_data, tibble(
+          id = row_id,
+          medications = as.character(entry) %||% "",
+          dosage = "",
+          frequency = ""
+        ))
+      }
+    }
   } else {
-    medication_data <- rbind(medication_data, data.frame(
-      id = Canada_Hosp1_COVID_InpatientData$id[i],
-      medications = "",
+
+    medication_data <- bind_rows(medication_data, tibble(
+      id = row_id,
+      medications = as.character(meds_list) %||% "",
       dosage = "",
-      frequency = "",
-      stringsAsFactors = FALSE
+      frequency = ""
     ))
   }
 }
-
-write.csv(medication_data, "medication_data.csv", row.names = FALSE)
-
+write_csv(medication_data, "medication_data.csv")
 
 
-data <- read_excel("Documents/UB/Spring 2025/Research/correct_medication_data.xlsx")
 
-# Delet medications that is NA or Please Select...
+data <- medication_data
+
 data <- data %>%
   filter(!is.na(medications) & str_trim(medications) != "")
 
-# Clean frequency
 invalid_freqs <- c("Please Select an option", "NA", "", NA)
 data <- data %>%
   mutate(frequency = ifelse(toupper(frequency) %in% toupper(invalid_freqs), "", frequency))
 
-# Standardize medications
 formats_to_remove <- c(
   "TABLETS?", "CAPLETS?", "CAPSULES?", "TAB", "CAP", "TABLET", "CAPLET",
   "XL", "DR", "SR", "XR", "CR", "MR", "AEM", "PF", "CD", "HD", "LA", "XC",
@@ -126,18 +163,15 @@ data <- data %>%
   )
 
 
-# Frequency report
 freq_report <- data %>%
   filter(frequency != "") %>%
   count(frequency, name = "count")
 write.csv(freq_report, "frequency_report.csv", row.names = FALSE)
 
-# Medication report
 med_report <- data %>%
   count(medications, name = "count")
 write.csv(med_report, "medications_report.csv", row.names = FALSE)
 
-# One-hot encoding matrix
 one_hot <- data %>%
   distinct(id, medications) %>%
   mutate(value = 1L) %>%
@@ -149,25 +183,23 @@ one_hot <- data %>%
   )
 write.csv(one_hot, "one_hot_matrix.csv", row.names = FALSE)
 
-# Dosage report
 dosage_report <- data %>%
   filter(!is.na(dosage) & str_trim(dosage) != "") %>%
   group_by(medications) %>%
   summarise(dosages = paste(sort(unique(dosage)), collapse = ", "), .groups = "drop")
 write.csv(dosage_report, "medication_dosages.csv", row.names = FALSE)
 
-# Frequency matrix（medication_dosage columns）
 data <- data %>%
   mutate(
     dosage_clean = ifelse(is.na(dosage) | str_trim(dosage) == "", "UNKNOWN", str_trim(dosage)),
     med_dose = paste(medications, dosage_clean, sep = "_")
   )
-# Turn empty freq to NA
+
 data <- data %>%
   mutate(
     frequency = ifelse(is.na(frequency) | str_trim(frequency) == "", "NA", frequency)
   )
-# turn text to numbers
+
 freq_map <- c(
   "OD" = 1, "BID" = 2, "TID" = 3, "QUID" = 4,
   "PRN" = 5, "WEEKLY" = 6, "EVERY OTHER DAY" = 7,
@@ -178,7 +210,7 @@ data <- data %>%
     frequency_clean = toupper(str_trim(frequency)),
     freq_value = freq_map[frequency_clean]
   )
-# Create a frequency matrix
+
 freq_matrix <- data %>%
   select(id, med_dose, freq_value) %>%
   group_by(id, med_dose) %>%
@@ -187,7 +219,29 @@ freq_matrix <- data %>%
 write.csv(freq_matrix, "frequency_matrix.csv", row.names = FALSE)
 
 
-# merge dataset
+dosage_variety_table <- data %>%
+  filter(!is.na(dosage) & str_trim(dosage) != "") %>%
+  distinct(medications, dosage) %>%
+  group_by(medications) %>%
+  summarise(
+    num_unique_dosages = n_distinct(dosage),
+    dosage_list = paste(sort(unique(dosage)), collapse = ", "),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(num_unique_dosages))
+
+write.csv(dosage_variety_table, "dosage_variety_table.csv", row.names = FALSE)
+
+med_dosage_freq_table <- data %>%
+  filter(!is.na(dosage) & str_trim(dosage) != "") %>%
+  count(medications, dosage, name = "count") %>%
+  arrange(desc(count))
+
+write.csv(med_dosage_freq_table, "medication_dosage_frequency_table.csv", row.names = FALSE)
+
+
+
+
 merged_new <- read_csv("Documents/UB/Spring 2025/Research/csv file extract/merged_new.csv")
 merged_data <- merge(merged_new, freq_matrix, by = "id", all.x = TRUE)
 
