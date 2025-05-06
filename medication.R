@@ -38,13 +38,7 @@ for (i in seq_len(nrow(df))) {
     str_replace_all("\\\\", "") %>%
     str_replace_all('^"|"$', "")
   
-  meds_list <- tryCatch(
-    fromJSON(meds_string_clean),
-    error = function(e) {
-      message(sprintf("❌ JSON error at row %d (id = %s): %s", i, row_id, e$message))
-      return(NULL)
-    }
-  )
+  meds_list <- fromJSON(meds_string_clean)
   
   if (is.null(meds_list) || length(meds_list) == 0) {
     medication_data <- bind_rows(medication_data, tibble(
@@ -63,7 +57,6 @@ for (i in seq_len(nrow(df))) {
       ))
     }
   } else if (is.list(meds_list)) {
-    # Fallback for list of lists
     for (j in seq_along(meds_list)) {
       entry <- meds_list[[j]]
       if (is.list(entry)) {
@@ -83,7 +76,6 @@ for (i in seq_len(nrow(df))) {
       }
     }
   } else {
-
     medication_data <- bind_rows(medication_data, tibble(
       id = row_id,
       medications = as.character(meds_list) %||% "",
@@ -92,6 +84,7 @@ for (i in seq_len(nrow(df))) {
     ))
   }
 }
+
 write_csv(medication_data, "medication_data.csv")
 
 
