@@ -103,9 +103,6 @@ allowed_medical_terms <- unique(c(base_medical_terms, additional_terms))
 # ---------------------------
 # 4. Enhanced Cleaning Function
 # ---------------------------
-library(qdapDictionaries)
-data(GradyAugmented)
-
 clean_text <- function(text) {
   text <- tolower(text)
   text <- trimws(text)
