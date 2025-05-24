@@ -3,6 +3,8 @@ library(tidytext)
 library(dplyr)
 library(stringr)
 library(ggplot2)
+library(qdapDictionaries)
+data(GradyAugmented)
 
 # ---------------------------
 # 1. Read in the Data
