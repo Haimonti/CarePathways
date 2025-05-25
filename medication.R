@@ -1,3 +1,4 @@
+#1.
 library(readxl)
 library(jsonlite)
 library(dplyr)
@@ -8,13 +9,13 @@ library(forcats)
 library(readr)
 library(data.table)
 
-`%||%` <- function(a, b) if (!is.null(a)) a else b
-
+#2.
 file_path <- "Documents/UB/Spring 2025/Research/Canada_Hosp1_COVID_InpatientData.xlsx"
 
 df <- read_excel(file_path) %>%
   mutate(id = as.character(id))
 
+#3.
 medication_data <- tibble(
   id = character(),
   medications = character(),
@@ -22,6 +23,8 @@ medication_data <- tibble(
   frequency = character()
 )
 
+#4.
+`%||%` <- function(a, b) if (!is.null(a)) a else b
 for (i in seq_len(nrow(df))) {
   row_id <- df$id[i]
   meds_string <- df$medications[i]
@@ -87,10 +90,9 @@ for (i in seq_len(nrow(df))) {
 
 write_csv(medication_data, "medication_data.csv")
 
-
-
 data <- medication_data
 
+#5. 
 data <- data %>%
   filter(!is.na(medications) & str_trim(medications) != "")
 
@@ -156,6 +158,7 @@ data <- data %>%
   )
 
 
+#6.
 freq_report <- data %>%
   filter(frequency != "") %>%
   count(frequency, name = "count")
@@ -182,6 +185,7 @@ dosage_report <- data %>%
   summarise(dosages = paste(sort(unique(dosage)), collapse = ", "), .groups = "drop")
 write.csv(dosage_report, "medication_dosages.csv", row.names = FALSE)
 
+#7.
 data <- data %>%
   mutate(
     dosage_clean = ifelse(is.na(dosage) | str_trim(dosage) == "", "UNKNOWN", str_trim(dosage)),
@@ -212,29 +216,8 @@ freq_matrix <- data %>%
 write.csv(freq_matrix, "frequency_matrix.csv", row.names = FALSE)
 
 
-dosage_variety_table <- data %>%
-  filter(!is.na(dosage) & str_trim(dosage) != "") %>%
-  distinct(medications, dosage) %>%
-  group_by(medications) %>%
-  summarise(
-    num_unique_dosages = n_distinct(dosage),
-    dosage_list = paste(sort(unique(dosage)), collapse = ", "),
-    .groups = "drop"
-  ) %>%
-  arrange(desc(num_unique_dosages))
 
-write.csv(dosage_variety_table, "dosage_variety_table.csv", row.names = FALSE)
-
-med_dosage_freq_table <- data %>%
-  filter(!is.na(dosage) & str_trim(dosage) != "") %>%
-  count(medications, dosage, name = "count") %>%
-  arrange(desc(count))
-
-write.csv(med_dosage_freq_table, "medication_dosage_frequency_table.csv", row.names = FALSE)
-
-
-
-
+#8.
 merged_new <- read_csv("Documents/UB/Spring 2025/Research/csv file extract/merged_new.csv")
 merged_data <- merge(merged_new, freq_matrix, by = "id", all.x = TRUE)
 
