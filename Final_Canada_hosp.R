@@ -1,3 +1,6 @@
+# ---------------------------
+# 1.
+# ---------------------------
 library(readxl)
 library(tidytext)
 library(dplyr)
@@ -7,21 +10,19 @@ library(qdapDictionaries)
 data(GradyAugmented)
 
 # ---------------------------
-# 1. Read in the Data
+# 2. 
 # ---------------------------
 df <- read_excel("Documents/UB/Spring 2025/Research/Canada_Hosp1_COVID_InpatientData.xlsx")
 df$comorbidities_other <- as.character(df$comorbidities_other)
 df$comorbidities_other[is.na(df$comorbidities_other)] <- ""
 
 # ---------------------------
-# 2. Initialize Tracking Variables
+# 3. 
 # ---------------------------
 removed_numbers <- 0
 removed_typos <- 0
 removed_special_chars <- 0
 removed_non_english <- 0
-
-# For tracking extracted years, special characters, removed typos, removed non-English words, and stop words removed
 year_list <- list()          # All 4-digit years (for counts_of_year_extraction_report.csv)
 special_chars_list <- list()  # All removed special characters
 typos_removed <- character(0) # Removed typos (only 1-letter words, 2 repeated letters like "aa", or 3 repeated letters like "aaa")
@@ -29,7 +30,7 @@ non_english_removed_list <- character(0)  # Removed words not in allowed lists
 stop_words_removed <- character(0)        # Stop words that were removed
 
 # ---------------------------
-# 3. Medical Terms Definition
+# 4. Medical Terms Dictionary
 # ---------------------------
 base_medical_terms <- c(
   "gerd", "gastroesophageal", "reflux", "copd", "dementia", "barrett",
@@ -103,39 +104,31 @@ additional_terms <- c(
 allowed_medical_terms <- unique(c(base_medical_terms, additional_terms))
 
 # ---------------------------
-# 4. Enhanced Cleaning Function
+# 5. Data Cleaning Function
 # ---------------------------
 clean_text <- function(text) {
   text <- tolower(text)
   text <- trimws(text)
-  
-  # Split the text into phrases (using comma as delimiter)
   phrases <- unlist(strsplit(text, ",\\s*"))
   all_words <- character(0)
-  
   for (phrase in phrases) {
     phrase <- trimws(phrase)
-    
     # --- Year Extraction ---
     years <- str_extract_all(phrase, "\\b(19|20)\\d{2}\\b")[[1]]
     year_list <<- c(year_list, years)  # store all extracted years
     phrase <- gsub("\\b(19|20)\\d{2}\\b", "", phrase)
-    
     # --- Remove Non-Year Digits ---
     non_year_digits <- str_extract_all(phrase, "\\d+")[[1]]
     removed_numbers <<- removed_numbers + length(non_year_digits)
     phrase <- gsub("\\d+", "", phrase)
-    
     # --- Special Characters ---
     special_chars <- str_extract_all(phrase, "[^a-z ]")[[1]]
     special_chars <- special_chars[special_chars != "" & !is.na(special_chars)]
     special_chars_list <<- c(special_chars_list, special_chars)
     phrase <- gsub("[^a-z ]", "", phrase)
-    
     # --- Split into Words ---
     words_list <- unlist(strsplit(phrase, "\\s+"))
     words_list <- words_list[words_list != ""]
-    
     # --- Track and Remove Typos ---
     # Only remove words that are exactly 1 letter,
     # OR exactly 2 letters that are the same (e.g. "aa"),
@@ -147,7 +140,6 @@ clean_text <- function(text) {
     typos_removed <<- c(typos_removed, removed_typos_words)
     removed_typos <<- removed_typos + length(removed_typos_words)
     words_list <- words_list[!remove_condition]
-    
     # --- Validate Words (Non-English Check) ---
     # Allowed words are those in GradyAugmented or in allowed_medical_terms.
     words_before_valid <- words_list
@@ -155,9 +147,7 @@ clean_text <- function(text) {
     removed_non_eng <- setdiff(words_before_valid, valid_words)
     non_english_removed_list <<- c(non_english_removed_list, removed_non_eng)
     removed_non_english <<- removed_non_english + length(removed_non_eng)
-    
     # --- Remove Stop Words (but keep if in allowed_medical_terms) ---
-    # First, track which stop words are removed.
     current_stop_words <- valid_words[valid_words %in% stop_words$word & !(valid_words %in% allowed_medical_terms)]
     stop_words_removed <<- c(stop_words_removed, current_stop_words)
     
@@ -171,12 +161,12 @@ clean_text <- function(text) {
 }
 
 # ---------------------------
-# 5. Clean Data
+# 6. Cleanned Data
 # ---------------------------
 df$cleaned_comorbidities <- sapply(df$comorbidities_other, clean_text)
 
 # ---------------------------
-# 6. Create Output CSV Files
+# 7. CSV Files Outputs
 # ---------------------------
 
 # (a) cleaned_dictionary.csv: The unique cleaned dictionary.
@@ -296,7 +286,10 @@ cleanup_summary <- data.frame(
 )
 write.csv(cleanup_summary, "cleanup_summary_report.csv", row.names = FALSE)
 
-# (k) Binary Matrix: Create a matrix with the first column as id and subsequent columns for each dictionary term.
+# ---------------------------
+# 8. Binary Matrix
+# ---------------------------
+
 create_binary_matrix <- function(cleaned_texts, dictionary_terms) {
   t(sapply(cleaned_texts, function(text) {
     words <- unlist(strsplit(text, "\\s+"))
@@ -309,18 +302,7 @@ colnames(binary_df) <- c("id", all_words_unique)
 print(paste("Matrix dimensions:", nrow(binary_df), "x", ncol(binary_df)))
 write.csv(binary_df, "binary_matrix.csv", row.names = FALSE)
 
-# ---------------------------
-# Frequency Plot for Top Terms
-word_counts <- df %>%
-  unnest_tokens(word, cleaned_comorbidities) %>%
-  count(word, sort = TRUE)
-top_terms <- head(word_counts, 10)
-ggplot(top_terms, aes(x = reorder(word, n), y = n)) +
-  geom_col(fill = "red") +
-  labs(title = "Top 10 Frequent Terms", x = "", y = "Count") +
-  coord_flip() +
-  theme_minimal()
-ggsave("top_terms_plot.png", width = 8, height = 6)
+
 
 # The following CSV files are produced:
 # 1. counts_of_year_extraction_report.csv
@@ -334,7 +316,6 @@ ggsave("top_terms_plot.png", width = 8, height = 6)
 # 9. cleanup_summary_report.csv
 # 10. cleaned_dictionary.csv
 # 11. binary_matrix.csv
-# top_terms_plot.png
 
 
 
