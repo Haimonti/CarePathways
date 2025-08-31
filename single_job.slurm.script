@@ -1,0 +1,16 @@
+#!/bin/bash 
+#SBATCH --job-name=lasso-part1
+#SBATCH --partition=general-compute
+#SBATCH --qos=general-compute
+#SBATCH --account=haimonti
+#SBATCH --time=03:00:00
+#SBATCH --mail-user=skhaniza@buffalo.edu
+#SBATCH --mail-type=all
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=128G
+#SBATCH --output=/projects/academic/haimonti/skhaniza/BOW-CC/logs/single_task_split_part_4.out
+
+module load foss python matplotlib scipy-bundle scikit-learn
+
+python ./BOW-CC/lasso.py --split_dir /projects/academic/haimonti/skhaniza/BOW-CC/split_part1.csv #change to choose a dataset
