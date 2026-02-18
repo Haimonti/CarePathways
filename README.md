@@ -136,35 +136,81 @@ The notebook performs these steps:
 
 ## Model Training
 
-The training script:
+The training script runs **four experiments** to compare model performance with and without clinical-note features:
 
-1. **Pretrains** stacked denoising autoencoders layer-by-layer
-2. **Fine-tunes** the full model with a classification head
-3. **Handles class imbalance** with weighted BCE loss
-4. **Reports metrics**: C-index, AUROC, F1, Precision, Recall
+| Experiment | Task | Features | Primary Metric |
+|------------|------|----------|----------------|
+| A | Classification (LLOS) | All (structured + notes) | AUROC |
+| B | Classification (LLOS) | Structured only | AUROC |
+| C | Regression (LOS days) | All (structured + notes) | MSE |
+| D | Regression (LOS days) | Structured only | MSE |
+
+**Structured features** = demographics, SNOMED diagnosis/procedure codes, RxNorm medication frequencies.
+**Clinical-note features** = Word2Vec embeddings of Chief Complaint + History of Present Illness (200 dimensions total).
+
+Each experiment independently:
+1. Pre-trains the stacked denoising autoencoders layer-by-layer
+2. Fine-tunes with the appropriate head (BCE for classification, MSE for regression)
+3. Applies early stopping and learning-rate scheduling
+4. Reports train and test metrics
 
 ### Hyperparameters
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| `noise_std` | 0.05 | Denoising noise level |
-| `dropout` | 0.1-0.3 | Regularization |
-| `pretrain_epochs` | 30 | Autoencoder pretraining |
-| `finetune_epochs` | 100 | Classification fine-tuning |
-| `batch_size` | 8-16 | Adjusted for small datasets |
-| `learning_rate` | 5e-4 | Adam optimizer |
+| `noise_std` | 0.05 | Gaussian noise added during denoising pre-training |
+| `dropout` | 0.1 (encoder) / 0.2 (head) | Regularisation dropout rate |
+| `pretrain_epochs` | 30 | Layer-wise autoencoder pre-training epochs |
+| `finetune_epochs` | 100 | Supervised fine-tuning epochs (with early stopping) |
+| `batch_size` | 8–16 | Mini-batch size (lower for small datasets) |
+| `learning_rate` | 5e-4 | Adam optimiser learning rate |
+| `pos_weight` | auto | Inverse class-frequency weight for BCE loss |
+| `patience` | 20 | Early-stopping patience (epochs without improvement) |
+| `weight_decay` | 1e-4 | L2 regularisation in Adam |
+| `layer_dims` | [input, 128, 64, 32] | Autoencoder layer sizes (auto-adjusted for <200 features) |
+
+---
+
+## Parameter Tuning Approach
+
+The Deep Patient model exposes two groups of tuneable parameters:
+
+### Architecture parameters
+- **`layer_dims`** – Number and width of autoencoder layers.  We use a 3-layer stack (128→64→32) when the input exceeds 200 features, otherwise 2 layers (64→32).  This follows the original Deep Patient paper's recommendation of progressively halving dimensions.
+- **`noise_std`**, **`dropout`** – Controls how strongly the autoencoder denoises and regularises.  Lower values (0.05 / 0.1) are preferred here because Synthea data has little noise compared to real EHR.
+
+### Training parameters
+- **`learning_rate`**, **`weight_decay`**, **`batch_size`**, **`epochs`** – Standard neural-network training knobs.
+- **`pos_weight`** – Automatically set to the inverse class-imbalance ratio so the model penalises false negatives proportionally.
+
+### Tuning strategy
+1. **Manual selection** – Current defaults were chosen based on common Deep Patient configurations and adjusted for the small Synthea dataset.
+2. **Early stopping** – The model monitors validation AUC (classification) or validation MSE (regression) and stops training when no improvement is seen for 20 consecutive epochs.  This prevents over-fitting and implicitly selects the best epoch count.
+3. **Learning-rate scheduling** – `ReduceLROnPlateau` halves the LR after 10 stagnant epochs.
+4. **Planned grid search** – For a production run with ≥1 000 patients, a grid search or Bayesian optimisation over `{noise_std, dropout, lr, layer_dims}` with 5-fold stratified cross-validation would be the next step.
 
 ---
 
 ## Evaluation Metrics
 
+### Classification (Experiments A & B)
+
 | Metric | Description |
 |--------|-------------|
-| **C-index** | Concordance index - ranking accuracy for pairs |
-| **AUROC** | Area under ROC curve - discrimination ability |
+| **AUROC** | Area under ROC curve – discrimination ability |
+| **C-index** | Concordance index – ranking accuracy for pairs |
 | **F1-score** | Harmonic mean of precision and recall |
 | **Precision** | True positives / Predicted positives |
 | **Recall** | True positives / Actual positives |
+
+### Regression (Experiments C & D)
+
+| Metric | Description |
+|--------|-------------|
+| **MSE** | Mean Squared Error – primary regression loss |
+| **RMSE** | Root MSE – same units as LOS (days) |
+| **MAE** | Mean Absolute Error – average absolute residual |
+| **R²** | Coefficient of determination – explained variance |
 
 ---
 
