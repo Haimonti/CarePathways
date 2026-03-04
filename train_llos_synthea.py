@@ -1,14 +1,15 @@
 """
-Deep Patient LLOS Prediction - Ablation and Regression
-======================================================
-Runs four experiments on Synthea data:
-  A  Classification WITH  clinical notes  -- AUROC, C-index, F1
-  B  Classification WITHOUT clinical notes -- AUROC, C-index, F1
-  C  Regression WITH  clinical notes       -- MSE, RMSE, MAE, R2
-  D  Regression WITHOUT clinical notes      -- MSE, RMSE, MAE, R2
+Deep Patient – LOS Regression on LLOS Cohort (Synthea)
+=======================================================
+The training/test sets contain only LLOS encounters (LOS ≥ mean + 2σ).
+Split is temporal (earlier admissions → train, later → test).
+
+Runs two ablation experiments:
+  C  Regression WITH  clinical notes  -- MSE, RMSE, MAE, R²
+  D  Regression WITHOUT clinical notes -- MSE, RMSE, MAE, R²
 
 Clinical-note features = cc_embedding_* + hpi_embedding_* columns.
-All other features are structured (demographics, dx, px, meds).
+All other features are structured (demographics, dx codes, px codes, meds).
 """
 
 import torch
@@ -17,10 +18,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 import pandas as pd
 import numpy as np
-from sklearn.metrics import (
-    roc_auc_score, f1_score, precision_score, recall_score,
-    confusion_matrix, mean_squared_error, mean_absolute_error, r2_score,
-)
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.preprocessing import StandardScaler
 import warnings, textwrap
 warnings.filterwarnings('ignore')
@@ -119,95 +117,11 @@ class PredictionHead(nn.Module):
         return self.head(z).squeeze(-1)
 
 
-# -----------------------------
-# C-index Calculation
-# -----------------------------
-def concordance_index(y_true, y_pred):
-    """
-    Calculate concordance index (C-index) for ranking accuracy.
-    For binary classification: probability of correctly ranking a random positive-negative pair.
-    """
-    y_true = np.array(y_true)
-    y_pred = np.array(y_pred)
-    
-    n = len(y_true)
-    concordant = 0
-    discordant = 0
-    tied = 0
-    
-    for i in range(n):
-        for j in range(i + 1, n):
-            if y_true[i] != y_true[j]:  # Only compare different outcomes
-                if (y_true[i] > y_true[j] and y_pred[i] > y_pred[j]) or \
-                   (y_true[i] < y_true[j] and y_pred[i] < y_pred[j]):
-                    concordant += 1
-                elif y_pred[i] == y_pred[j]:
-                    tied += 1
-                else:
-                    discordant += 1
-    
-    total = concordant + discordant + tied
-    if total == 0:
-        return 0.5
-    
-    return (concordant + 0.5 * tied) / total
-
-
 # ----------------------------------------------------------------
 # Training helpers
 # ----------------------------------------------------------------
 def _make_loader(X, y, batch_size, shuffle=True):
     return DataLoader(TensorDataset(X, y), batch_size=batch_size, shuffle=shuffle)
-
-
-def train_classification(model, head, X_train, y_train, X_val, y_val,
-                         epochs=100, lr=1e-3, batch_size=16,
-                         pos_weight=None, patience=20, verbose=True):
-    """Fine-tune for binary LLOS classification (BCE loss, early-stop on AUC)."""
-    loader = _make_loader(X_train, y_train, batch_size)
-    params = list(model.parameters()) + list(head.parameters())
-    optimizer = optim.Adam(params, lr=lr, weight_decay=1e-4)
-    pw = pos_weight if pos_weight is not None else torch.tensor([1.0])
-    criterion = nn.BCEWithLogitsLoss(pos_weight=pw)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', patience=10, factor=0.5)
-
-    best_auc, best_state, wait = 0, None, 0
-
-    for epoch in range(epochs):
-        model.train(); head.train()
-        epoch_loss = 0
-        for Xb, yb in loader:
-            optimizer.zero_grad()
-            loss = criterion(head(model(Xb)), yb)
-            loss.backward(); optimizer.step()
-            epoch_loss += loss.item()
-
-        model.eval(); head.eval()
-        with torch.no_grad():
-            val_probs = torch.sigmoid(head(model(X_val))).numpy()
-        try:
-            val_auc = roc_auc_score(y_val.numpy(), val_probs)
-        except Exception:
-            val_auc = 0.5
-        scheduler.step(val_auc)
-
-        if val_auc > best_auc:
-            best_auc = val_auc
-            best_state = {'m': {k: v.clone() for k, v in model.state_dict().items()},
-                          'h': {k: v.clone() for k, v in head.state_dict().items()}}
-            wait = 0
-        else:
-            wait += 1
-
-        if verbose and (epoch + 1) % 10 == 0:
-            print(f"  Epoch {epoch+1}/{epochs}: loss={epoch_loss/len(loader):.4f}  val_AUC={val_auc:.4f}")
-        if wait >= patience:
-            if verbose: print(f"  Early stopping at epoch {epoch+1}")
-            break
-
-    if best_state:
-        model.load_state_dict(best_state['m']); head.load_state_dict(best_state['h'])
-    return model, head
 
 
 def train_regression(model, head, X_train, y_train, X_val, y_val,
@@ -257,30 +171,8 @@ def train_regression(model, head, X_train, y_train, X_val, y_val,
 
 
 # ----------------------------------------------------------------
-# Evaluation helpers
+# Evaluation
 # ----------------------------------------------------------------
-def evaluate_classification(model, head, X, y, threshold=0.5):
-    model.eval(); head.eval()
-    with torch.no_grad():
-        probs = torch.sigmoid(head(model(X))).numpy()
-    preds = (probs >= threshold).astype(int)
-    y_np = y.numpy()
-
-    try:
-        auroc = roc_auc_score(y_np, probs)
-    except Exception:
-        auroc = float('nan')
-
-    return {
-        'auroc':     auroc,
-        'c_index':   concordance_index(y_np, probs),
-        'f1':        f1_score(y_np, preds, zero_division=0),
-        'precision': precision_score(y_np, preds, zero_division=0),
-        'recall':    recall_score(y_np, preds, zero_division=0),
-        'cm':        confusion_matrix(y_np, preds),
-    }, probs, preds
-
-
 def evaluate_regression(model, head, X, y):
     model.eval(); head.eval()
     with torch.no_grad():
@@ -305,35 +197,6 @@ def _build_and_pretrain(X_train_t, layer_dims, noise_std=0.05, dropout=0.1,
     model.pretrain(X_train_t, epochs=pretrain_epochs, lr=lr,
                    batch_size=batch_size, verbose=verbose)
     return model
-
-
-def run_classification_experiment(tag, X_train_t, y_train_t, X_test_t, y_test_t,
-                                  layer_dims, pos_weight, verbose=True):
-    """Full classification pipeline: pretrain → fine-tune → evaluate."""
-    print(f"\n{'='*60}")
-    print(f"Experiment {tag}: CLASSIFICATION")
-    print(f"  Features: {X_train_t.shape[1]}")
-    print(f"{'='*60}")
-
-    model = _build_and_pretrain(X_train_t, layer_dims, verbose=verbose)
-    head = PredictionHead(layer_dims[-1], hidden_dim=16, dropout=0.2)
-
-    model, head = train_classification(
-        model, head, X_train_t, y_train_t,
-        X_train_t, y_train_t,  # val=train for tiny datasets
-        epochs=100, lr=5e-4, batch_size=8,
-        pos_weight=pos_weight, patience=20, verbose=verbose,
-    )
-
-    train_res, _, _ = evaluate_classification(model, head, X_train_t, y_train_t)
-    test_res, probs, preds = evaluate_classification(model, head, X_test_t, y_test_t)
-
-    print(f"\n  Train  →  AUC={train_res['auroc']:.4f}  F1={train_res['f1']:.4f}")
-    print(f"  Test   →  AUC={test_res['auroc']:.4f}  F1={test_res['f1']:.4f}  C-index={test_res['c_index']:.4f}")
-    print(f"  Confusion matrix:\n{test_res['cm']}")
-
-    return {'train': train_res, 'test': test_res, 'probs': probs, 'preds': preds,
-            'model': model, 'head': head}
 
 
 def run_regression_experiment(tag, X_train_t, y_train_t, X_test_t, y_test_t,
@@ -365,14 +228,14 @@ def run_regression_experiment(tag, X_train_t, y_train_t, X_test_t, y_test_t,
 
 
 # ----------------------------------------------------------------
-# Main – run all 4 experiments
+# Main – run regression experiments (C = with notes, D = without)
 # ----------------------------------------------------------------
 def main():
     print("=" * 60)
-    print("Deep Patient – Ablation & Regression (Synthea)")
+    print("Deep Patient – LOS Regression on LLOS Cohort (Synthea)")
     print("=" * 60)
 
-    # ------ load data --------------------------------------------------
+    # ------ load data (temporal split, LLOS cohort only) ---------------
     data_path = "./datasets/synthea_processed"
 
     train_df = pd.read_csv(f"{data_path}/train_set.csv")
@@ -381,6 +244,8 @@ def main():
         feature_cols = [l.strip() for l in f if l.strip()]
 
     print(f"\nTrain: {len(train_df)}  Test: {len(test_df)}  Features: {len(feature_cols)}")
+    print(f"Train LOS  mean: {train_df['LOS'].mean():.2f} days")
+    print(f"Test  LOS  mean: {test_df['LOS'].mean():.2f} days")
 
     # ------ identify note vs structured columns -------------------------
     note_cols   = [c for c in feature_cols if c.startswith(('cc_embedding_', 'hpi_embedding_'))]
@@ -396,41 +261,16 @@ def main():
         return (torch.tensor(Xtr), torch.tensor(Xte), scaler)
 
     # all features  /  structured only
-    Xtr_all, Xte_all, sc_all    = prepare(feature_cols)
-    Xtr_str, Xte_str, sc_struct = prepare(struct_cols)
+    Xtr_all, Xte_all, _ = prepare(feature_cols)
+    Xtr_str, Xte_str, _ = prepare(struct_cols)
 
-    # targets
-    y_cls_tr = torch.tensor(train_df['is_llos'].values, dtype=torch.float32)
-    y_cls_te = torch.tensor(test_df['is_llos'].values,  dtype=torch.float32)
-    y_reg_tr = torch.tensor(train_df['LOS'].values,     dtype=torch.float32)
-    y_reg_te = torch.tensor(test_df['LOS'].values,      dtype=torch.float32)
-
-    # class-imbalance weight
-    pos = y_cls_tr.sum().item()
-    neg = len(y_cls_tr) - pos
-    pos_weight = torch.tensor([neg / pos]) if pos > 0 else torch.tensor([1.0])
-    print(f"LLOS train: {int(pos)} ({pos/len(y_cls_tr)*100:.1f}%)  "
-          f"test: {int(y_cls_te.sum().item())} ({y_cls_te.sum().item()/len(y_cls_te)*100:.1f}%)")
+    # regression targets
+    y_reg_tr = torch.tensor(train_df['LOS'].values, dtype=torch.float32)
+    y_reg_te = torch.tensor(test_df['LOS'].values,  dtype=torch.float32)
 
     # ------ layer dims helper -------------------------------------------
     def dims(n_feat):
         return [n_feat, 128, 64, 32] if n_feat > 200 else [n_feat, 64, 32]
-
-    # ===================================================================
-    # A  Classification WITH notes
-    # ===================================================================
-    res_A = run_classification_experiment(
-        "A – Classification WITH notes",
-        Xtr_all, y_cls_tr, Xte_all, y_cls_te,
-        dims(Xtr_all.shape[1]), pos_weight)
-
-    # ===================================================================
-    # B  Classification WITHOUT notes
-    # ===================================================================
-    res_B = run_classification_experiment(
-        "B – Classification WITHOUT notes",
-        Xtr_str, y_cls_tr, Xte_str, y_cls_te,
-        dims(Xtr_str.shape[1]), pos_weight)
 
     # ===================================================================
     # C  Regression WITH notes
@@ -452,15 +292,8 @@ def main():
     # Summary table
     # ===================================================================
     print("\n" + "=" * 70)
-    print("SUMMARY")
+    print("SUMMARY  (LLOS cohort, temporal test split)")
     print("=" * 70)
-
-    print("\n  Classification (test set):")
-    print(f"  {'Experiment':<35} {'AUC':>8} {'F1':>8} {'C-idx':>8}")
-    print(f"  {'-'*35} {'-'*8} {'-'*8} {'-'*8}")
-    for label, r in [("A  With notes", res_A), ("B  Without notes", res_B)]:
-        t = r['test']
-        print(f"  {label:<35} {t['auroc']:8.4f} {t['f1']:8.4f} {t['c_index']:8.4f}")
 
     print("\n  Regression (test set):")
     print(f"  {'Experiment':<35} {'MSE':>8} {'RMSE':>8} {'MAE':>8} {'R²':>8}")
@@ -479,10 +312,6 @@ def main():
 
     # ------ save artefacts ---------------------------------------------
     torch.save({
-        'classif_with_notes':    {'model': res_A['model'].state_dict(),
-                                  'head':  res_A['head'].state_dict()},
-        'classif_without_notes': {'model': res_B['model'].state_dict(),
-                                  'head':  res_B['head'].state_dict()},
         'regress_with_notes':    {'model': res_C['model'].state_dict(),
                                   'head':  res_C['head'].state_dict()},
         'regress_without_notes': {'model': res_D['model'].state_dict(),
@@ -493,7 +322,7 @@ def main():
     }, f"{data_path}/llos_model.pt")
     print(f"\nModels saved to {data_path}/llos_model.pt")
 
-    return {'A': res_A, 'B': res_B, 'C': res_C, 'D': res_D}
+    return {'C': res_C, 'D': res_D}
 
 
 if __name__ == "__main__":
