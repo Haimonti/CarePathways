@@ -1,12 +1,12 @@
 """
-Deep Patient – LOS Regression on LLOS Cohort (Synthea)
-=======================================================
-The training/test sets contain only LLOS encounters (LOS ≥ mean + 2σ).
-Split is temporal (earlier admissions → train, later → test).
+Deep Patient – LOS Regression on the LLOS Cohort (Synthea)
+==========================================================
+The notebook output contains only LLOS encounters (LOS ≥ mean + 2σ).
+The external test set is temporal (earlier admissions → train, later → test).
 
-Runs two ablation experiments:
-  C  Regression WITH  clinical notes  -- MSE, RMSE, MAE, R²
-  D  Regression WITHOUT clinical notes -- MSE, RMSE, MAE, R²
+This script runs two regression ablations:
+  with_notes      -- structured features + clinical-note embeddings
+  structured_only -- structured features only
 
 Clinical-note features = cc_embedding_* + hpi_embedding_* columns.
 All other features are structured (demographics, dx codes, px codes, meds).
@@ -20,7 +20,8 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.preprocessing import StandardScaler
-import warnings, textwrap
+import warnings, textwrap, json
+from config_utils import load_data_paths
 warnings.filterwarnings('ignore')
 
 # -----------------------------
@@ -38,7 +39,6 @@ class DenoisingAutoencoder(nn.Module):
         )
         self.decoder = nn.Sequential(
             nn.Linear(hidden_dim, input_dim),
-            nn.Sigmoid()
         )
 
     def forward(self, x):
@@ -101,9 +101,9 @@ class DeepPatient(nn.Module):
 
 
 # -----------------------------
-# Prediction Head (classification or regression)
+# Regression head
 # -----------------------------
-class PredictionHead(nn.Module):
+class RegressionHead(nn.Module):
     def __init__(self, embedding_dim, hidden_dim=64, dropout=0.3):
         super().__init__()
         self.head = nn.Sequential(
@@ -122,6 +122,27 @@ class PredictionHead(nn.Module):
 # ----------------------------------------------------------------
 def _make_loader(X, y, batch_size, shuffle=True):
     return DataLoader(TensorDataset(X, y), batch_size=batch_size, shuffle=shuffle)
+
+
+def split_train_validation(train_df, val_fraction=0.2):
+    """Use the latest portion of the training split for validation."""
+    if len(train_df) < 5:
+        raise ValueError("Need at least 5 training rows to create a disjoint validation split.")
+
+    ordered = train_df.copy()
+    if "admittime" in ordered.columns:
+        ordered["admittime"] = pd.to_datetime(ordered["admittime"], utc=True)
+        ordered = ordered.sort_values("admittime").reset_index(drop=True)
+    else:
+        ordered = ordered.reset_index(drop=True)
+
+    val_size = max(1, int(round(len(ordered) * val_fraction)))
+    if val_size >= len(ordered):
+        val_size = len(ordered) - 1
+
+    train_part = ordered.iloc[:-val_size].copy()
+    val_part = ordered.iloc[-val_size:].copy()
+    return train_part, val_part
 
 
 def train_regression(model, head, X_train, y_train, X_val, y_val,
@@ -199,7 +220,7 @@ def _build_and_pretrain(X_train_t, layer_dims, noise_std=0.05, dropout=0.1,
     return model
 
 
-def run_regression_experiment(tag, X_train_t, y_train_t, X_test_t, y_test_t,
+def run_regression_experiment(tag, X_train_t, y_train_t, X_val_t, y_val_t, X_test_t, y_test_t,
                               layer_dims, verbose=True):
     """Full regression pipeline: pretrain → fine-tune → evaluate."""
     print(f"\n{'='*60}")
@@ -208,27 +229,29 @@ def run_regression_experiment(tag, X_train_t, y_train_t, X_test_t, y_test_t,
     print(f"{'='*60}")
 
     model = _build_and_pretrain(X_train_t, layer_dims, verbose=verbose)
-    head = PredictionHead(layer_dims[-1], hidden_dim=16, dropout=0.2)
+    head = RegressionHead(layer_dims[-1], hidden_dim=16, dropout=0.2)
 
     model, head = train_regression(
         model, head, X_train_t, y_train_t,
-        X_train_t, y_train_t,
+        X_val_t, y_val_t,
         epochs=100, lr=5e-4, batch_size=8,
         patience=20, verbose=verbose,
     )
 
     train_res, _ = evaluate_regression(model, head, X_train_t, y_train_t)
+    val_res, _ = evaluate_regression(model, head, X_val_t, y_val_t)
     test_res, preds = evaluate_regression(model, head, X_test_t, y_test_t)
 
     print(f"\n  Train  →  MSE={train_res['mse']:.4f}  RMSE={train_res['rmse']:.4f}  R²={train_res['r2']:.4f}")
+    print(f"  Valid  →  MSE={val_res['mse']:.4f}  RMSE={val_res['rmse']:.4f}  R²={val_res['r2']:.4f}")
     print(f"  Test   →  MSE={test_res['mse']:.4f}  RMSE={test_res['rmse']:.4f}  R²={test_res['r2']:.4f}")
 
-    return {'train': train_res, 'test': test_res, 'preds': preds,
+    return {'train': train_res, 'val': val_res, 'test': test_res, 'preds': preds,
             'model': model, 'head': head}
 
 
 # ----------------------------------------------------------------
-# Main – run regression experiments (C = with notes, D = without)
+# Main – run LOS regression experiments on the LLOS cohort
 # ----------------------------------------------------------------
 def main():
     print("=" * 60)
@@ -236,14 +259,17 @@ def main():
     print("=" * 60)
 
     # ------ load data (temporal split, LLOS cohort only) ---------------
-    data_path = "./datasets/synthea_processed"
+    data_path = load_data_paths().processed_dir
 
-    train_df = pd.read_csv(f"{data_path}/train_set.csv")
-    test_df  = pd.read_csv(f"{data_path}/test_set.csv")
-    with open(f"{data_path}/feature_columns.txt") as f:
+    train_df = pd.read_csv(data_path / "train_set.csv")
+    test_df = pd.read_csv(data_path / "test_set.csv")
+    with (data_path / "feature_columns.txt").open(encoding="utf-8") as f:
         feature_cols = [l.strip() for l in f if l.strip()]
 
+    train_fit_df, val_df = split_train_validation(train_df)
+
     print(f"\nTrain: {len(train_df)}  Test: {len(test_df)}  Features: {len(feature_cols)}")
+    print(f"Fit rows: {len(train_fit_df)}  Validation rows: {len(val_df)}")
     print(f"Train LOS  mean: {train_df['LOS'].mean():.2f} days")
     print(f"Test  LOS  mean: {test_df['LOS'].mean():.2f} days")
 
@@ -256,16 +282,18 @@ def main():
     # ------ helper: scale & tensorise ----------------------------------
     def prepare(cols):
         scaler = StandardScaler()
-        Xtr = scaler.fit_transform(train_df[cols].values.astype(np.float32))
+        Xtr = scaler.fit_transform(train_fit_df[cols].values.astype(np.float32))
+        Xval = scaler.transform(val_df[cols].values.astype(np.float32))
         Xte = scaler.transform(test_df[cols].values.astype(np.float32))
-        return (torch.tensor(Xtr), torch.tensor(Xte), scaler)
+        return (torch.tensor(Xtr), torch.tensor(Xval), torch.tensor(Xte), scaler)
 
     # all features  /  structured only
-    Xtr_all, Xte_all, _ = prepare(feature_cols)
-    Xtr_str, Xte_str, _ = prepare(struct_cols)
+    Xtr_all, Xval_all, Xte_all, _ = prepare(feature_cols)
+    Xtr_str, Xval_str, Xte_str, _ = prepare(struct_cols)
 
     # regression targets
-    y_reg_tr = torch.tensor(train_df['LOS'].values, dtype=torch.float32)
+    y_reg_tr = torch.tensor(train_fit_df['LOS'].values, dtype=torch.float32)
+    y_reg_val = torch.tensor(val_df['LOS'].values, dtype=torch.float32)
     y_reg_te = torch.tensor(test_df['LOS'].values,  dtype=torch.float32)
 
     # ------ layer dims helper -------------------------------------------
@@ -273,19 +301,19 @@ def main():
         return [n_feat, 128, 64, 32] if n_feat > 200 else [n_feat, 64, 32]
 
     # ===================================================================
-    # C  Regression WITH notes
+    # Regression with notes
     # ===================================================================
     res_C = run_regression_experiment(
-        "C – Regression WITH notes",
-        Xtr_all, y_reg_tr, Xte_all, y_reg_te,
+        "with_notes",
+        Xtr_all, y_reg_tr, Xval_all, y_reg_val, Xte_all, y_reg_te,
         dims(Xtr_all.shape[1]))
 
     # ===================================================================
-    # D  Regression WITHOUT notes
+    # Regression with structured features only
     # ===================================================================
     res_D = run_regression_experiment(
-        "D – Regression WITHOUT notes",
-        Xtr_str, y_reg_tr, Xte_str, y_reg_te,
+        "structured_only",
+        Xtr_str, y_reg_tr, Xval_str, y_reg_val, Xte_str, y_reg_te,
         dims(Xtr_str.shape[1]))
 
     # ===================================================================
@@ -296,11 +324,11 @@ def main():
     print("=" * 70)
 
     print("\n  Regression (test set):")
-    print(f"  {'Experiment':<35} {'MSE':>8} {'RMSE':>8} {'MAE':>8} {'R²':>8}")
-    print(f"  {'-'*35} {'-'*8} {'-'*8} {'-'*8} {'-'*8}")
-    for label, r in [("C  With notes", res_C), ("D  Without notes", res_D)]:
+    print(f"  {'Experiment':<20} {'MSE':>8} {'RMSE':>8} {'MAE':>8} {'R²':>8}")
+    print(f"  {'-'*20} {'-'*8} {'-'*8} {'-'*8} {'-'*8}")
+    for label, r in [("with_notes", res_C), ("structured_only", res_D)]:
         t = r['test']
-        print(f"  {label:<35} {t['mse']:8.4f} {t['rmse']:8.4f} {t['mae']:8.4f} {t['r2']:8.4f}")
+        print(f"  {label:<20} {t['mse']:8.4f} {t['rmse']:8.4f} {t['mae']:8.4f} {t['r2']:8.4f}")
 
     print("\n" + "=" * 70)
     print("All experiments complete.")
@@ -312,15 +340,29 @@ def main():
 
     # ------ save artefacts ---------------------------------------------
     torch.save({
-        'regress_with_notes':    {'model': res_C['model'].state_dict(),
-                                  'head':  res_C['head'].state_dict()},
-        'regress_without_notes': {'model': res_D['model'].state_dict(),
-                                  'head':  res_D['head'].state_dict()},
+        'with_notes':    {'model': res_C['model'].state_dict(),
+                          'head':  res_C['head'].state_dict()},
+        'structured_only': {'model': res_D['model'].state_dict(),
+                            'head':  res_D['head'].state_dict()},
         'feature_cols': feature_cols,
         'struct_cols':  struct_cols,
         'note_cols':    note_cols,
-    }, f"{data_path}/llos_model.pt")
-    print(f"\nModels saved to {data_path}/llos_model.pt")
+    }, data_path / "llos_model.pt")
+    print(f"\nModels saved to {data_path / 'llos_model.pt'}")
+
+    predictions_df = test_df[['subject_id', 'hadm_id', 'LOS']].copy()
+    predictions_df['pred_with_notes'] = res_C['preds']
+    predictions_df['pred_structured_only'] = res_D['preds']
+    predictions_df.to_csv(data_path / "test_predictions.csv", index=False)
+    print(f"Test predictions saved to {data_path / 'test_predictions.csv'}")
+
+    metrics_summary = {
+        'with_notes': {split: {k: float(v) for k, v in res_C[split].items()} for split in ('train', 'val', 'test')},
+        'structured_only': {split: {k: float(v) for k, v in res_D[split].items()} for split in ('train', 'val', 'test')},
+    }
+    with (data_path / "metrics_summary.json").open("w", encoding="utf-8") as f:
+        json.dump(metrics_summary, f, indent=2)
+    print(f"Metrics summary saved to {data_path / 'metrics_summary.json'}")
 
     return {'C': res_C, 'D': res_D}
 

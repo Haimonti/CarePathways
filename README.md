@@ -15,7 +15,7 @@ This pipeline adapts the [Deep Patient](https://www.nature.com/articles/srep2609
 
 ### Model Architecture
 ```
-Input Features → 128 → 64 → 32 (embedding) → Classifier → LLOS Prediction
+Input Features → 128 → 64 → 32 (embedding) → Regressor → LOS Prediction
 ```
 
 ---
@@ -28,7 +28,7 @@ Input Features → 128 → 64 → 32 (embedding) → Classifier → LLOS Predict
 
 ### Dependencies
 ```bash
-pip install pandas numpy torch scikit-learn nltk gensim
+pip install pandas numpy torch scikit-learn nltk gensim PyYAML
 ```
 
 ### Synthea (for data generation)
@@ -44,20 +44,35 @@ pip install pandas numpy torch scikit-learn nltk gensim
 Download the Synthea JAR file from the [Synthea Releases page](https://github.com/synthetichealth/synthea/releases) (look for `synthea-with-dependencies.jar`), then generate patients:
 
 ```bash
-# Generate 1000 patients (recommended minimum for meaningful results)
+# Generate 10000 patients (recommended minimum for meaningful results)
 java -jar synthea-with-dependencies.jar \
-  -p 1000 \
+  -p 10000 \
   -s 42 \
   -c synthea.properties
 ```
 
-Copy the output to the project:
+Create an external data root and copy the output there:
 ```bash
-cp -r output/csv /path/to/CarePathways/output_synthea/
-cp -r output/notes /path/to/CarePathways/output_synthea/
+mkdir -p /absolute/path/to/llos-data
+cp -r output/csv /absolute/path/to/llos-data/
+cp -r output/notes /absolute/path/to/llos-data/
 ```
 
 ### 2. Run Preprocessing
+
+Create your local config from the tracked example, then set the external data root:
+```bash
+cp config.example.yaml config.yaml
+```
+
+Update `config.yaml`:
+```yaml
+data:
+  root_dir: /absolute/path/to/llos-data
+  raw_csv_subdir: csv
+  notes_subdir: notes
+  processed_subdir: synthea_processed
+```
 
 Open and run the Jupyter notebook:
 ```bash
@@ -69,7 +84,7 @@ Or run all cells programmatically:
 jupyter nbconvert --to notebook --execute synthea_preprocessing.ipynb
 ```
 
-**Output files** (saved to `datasets/synthea_processed/`):
+**Output files** (saved to `<data.root_dir>/synthea_processed/`):
 - `final_dataset.csv` - Complete preprocessed dataset
 - `train_set.csv` - Training split (80%)
 - `test_set.csv` - Test split (20%)
@@ -84,6 +99,7 @@ python train_llos_synthea.py
 **Output**:
 - `llos_model.pt` - Trained PyTorch model
 - `test_predictions.csv` - Predictions on test set
+- `metrics_summary.json` - Train/validation/test regression metrics
 
 ---
 
@@ -95,17 +111,19 @@ CarePathways/
 ├── synthea_preprocessing.ipynb   # Main preprocessing notebook
 ├── train_llos_synthea.py         # Model training script
 ├── synthea.properties            # Synthea configuration
+├── config.example.yaml           # Tracked config template
+├── config.yaml                   # Local-only config (gitignored)
+├── config_utils.py               # Shared config/path loader
 ├── PhysicalandAdmission.csv      # Sample output
-├── output_synthea/               # Synthea data (create this folder)
-│   ├── csv/                      # Synthea CSV exports
-│   │   ├── patients.csv
-│   │   ├── encounters.csv
-│   │   ├── conditions.csv
-│   │   ├── procedures.csv
-│   │   └── medications.csv
-│   └── notes/                    # Synthea clinical notes
-│       └── *.txt
-└── datasets/
+└── External data root (configured in config.yaml)
+    ├── csv/                      # Synthea CSV exports
+    │   ├── patients.csv
+    │   ├── encounters.csv
+    │   ├── conditions.csv
+    │   ├── procedures.csv
+    │   └── medications.csv
+    ├── notes/                    # Synthea clinical notes
+    │   └── *.txt
     └── synthea_processed/        # Preprocessed outputs
         ├── final_dataset.csv
         ├── train_set.csv
@@ -122,7 +140,7 @@ The notebook performs these steps:
 | Step | Description | Output |
 |------|-------------|--------|
 | 1 | Filter inpatient encounters, calculate LOS | `phy_ad.csv` |
-| 2 | Create LLOS label (LOS ≥ mean + 2σ) | Binary target |
+| 2 | Filter to the LLOS cohort (LOS ≥ mean + 2σ) | Regression cohort |
 | 3 | One-hot encode diagnosis SNOMED codes | `phyad_dicd.csv` |
 | 4 | One-hot encode procedure SNOMED codes | `phyad_dicd_picd.csv` |
 | 5 | Build medication frequency matrix | `phyad_dicd_picd_medfreq.csv` |
@@ -130,29 +148,27 @@ The notebook performs these steps:
 | 7 | Extract & clean HPI | `hpi_cleaned.csv` |
 | 8 | Train Word2Vec, compute embeddings | `cc_hpi_embed.txt` |
 | 9 | Merge all features | `final_dataset.csv` |
-| 10 | Stratified train/test split | `train_set.csv`, `test_set.csv` |
+| 10 | Temporal train/test split | `train_set.csv`, `test_set.csv` |
 
 ---
 
 ## Model Training
 
-The training script runs **four experiments** to compare model performance with and without clinical-note features:
+The training script runs **two LOS regression ablations** to compare model performance with and without clinical-note features:
 
-| Experiment | Task | Features | Primary Metric |
-|------------|------|----------|----------------|
-| A | Classification (LLOS) | All (structured + notes) | AUROC |
-| B | Classification (LLOS) | Structured only | AUROC |
-| C | Regression (LOS days) | All (structured + notes) | MSE |
-| D | Regression (LOS days) | Structured only | MSE |
+| Experiment | Features | Primary Metric |
+|------------|----------|----------------|
+| `with_notes` | Structured + notes | MSE |
+| `structured_only` | Structured only | MSE |
 
 **Structured features** = demographics, SNOMED diagnosis/procedure codes, RxNorm medication frequencies.
 **Clinical-note features** = Word2Vec embeddings of Chief Complaint + History of Present Illness (200 dimensions total).
 
 Each experiment independently:
 1. Pre-trains the stacked denoising autoencoders layer-by-layer
-2. Fine-tunes with the appropriate head (BCE for classification, MSE for regression)
-3. Applies early stopping and learning-rate scheduling
-4. Reports train and test metrics
+2. Splits the notebook's training output into fit/validation subsets for early stopping
+3. Fine-tunes a regression head with MSE loss
+4. Reports train, validation, and test regression metrics
 
 ### Hyperparameters
 
@@ -164,7 +180,6 @@ Each experiment independently:
 | `finetune_epochs` | 100 | Supervised fine-tuning epochs (with early stopping) |
 | `batch_size` | 8–16 | Mini-batch size (lower for small datasets) |
 | `learning_rate` | 5e-4 | Adam optimiser learning rate |
-| `pos_weight` | auto | Inverse class-frequency weight for BCE loss |
 | `patience` | 20 | Early-stopping patience (epochs without improvement) |
 | `weight_decay` | 1e-4 | L2 regularisation in Adam |
 | `layer_dims` | [input, 128, 64, 32] | Autoencoder layer sizes (auto-adjusted for <200 features) |
@@ -181,29 +196,18 @@ The Deep Patient model exposes two groups of tuneable parameters:
 
 ### Training parameters
 - **`learning_rate`**, **`weight_decay`**, **`batch_size`**, **`epochs`** – Standard neural-network training knobs.
-- **`pos_weight`** – Automatically set to the inverse class-imbalance ratio so the model penalises false negatives proportionally.
 
 ### Tuning strategy
 1. **Manual selection** – Current defaults were chosen based on common Deep Patient configurations and adjusted for the small Synthea dataset.
-2. **Early stopping** – The model monitors validation AUC (classification) or validation MSE (regression) and stops training when no improvement is seen for 20 consecutive epochs.  This prevents over-fitting and implicitly selects the best epoch count.
+2. **Early stopping** – The model monitors validation MSE on a disjoint validation slice from the training split and stops training when no improvement is seen for 20 consecutive epochs.
 3. **Learning-rate scheduling** – `ReduceLROnPlateau` halves the LR after 10 stagnant epochs.
-4. **Planned grid search** – For a production run with ≥1 000 patients, a grid search or Bayesian optimisation over `{noise_std, dropout, lr, layer_dims}` with 5-fold stratified cross-validation would be the next step.
+4. **Planned grid search** – For a production run with ≥1 000 patients, a grid search or Bayesian optimisation over `{noise_std, dropout, lr, layer_dims}` with temporal or grouped validation would be the next step.
 
 ---
 
 ## Evaluation Metrics
 
-### Classification (Experiments A & B)
-
-| Metric | Description |
-|--------|-------------|
-| **AUROC** | Area under ROC curve – discrimination ability |
-| **C-index** | Concordance index – ranking accuracy for pairs |
-| **F1-score** | Harmonic mean of precision and recall |
-| **Precision** | True positives / Predicted positives |
-| **Recall** | True positives / Actual positives |
-
-### Regression (Experiments C & D)
+### Regression
 
 | Metric | Description |
 |--------|-------------|
@@ -245,10 +249,10 @@ The notebook handles timezone-aware timestamps from Synthea. If you see timezone
 pip install --upgrade pandas
 ```
 
-### Low AUROC / C-index
+### Weak regression metrics
 - Increase dataset size (more Synthea patients)
 - Check LLOS distribution in train/test sets
-- Adjust positive class weight
+- Revisit the Deep Patient layer widths and validation split
 
 ### Out of memory
 - Reduce batch size in training script

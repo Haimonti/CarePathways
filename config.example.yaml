@@ -1,0 +1,5 @@
+data:
+  root_dir: /absolute/path/to/your/external/llos-data
+  raw_csv_subdir: csv
+  notes_subdir: notes
+  processed_subdir: synthea_processed
