@@ -369,7 +369,7 @@ function ModelConfig({
           >
             {models.map((model) => (
               <option key={model.model_key} value={model.model_key}>
-                {model.display_name} — {model.description}
+                {model.display_name}
               </option>
             ))}
           </select>
