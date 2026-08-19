@@ -179,6 +179,7 @@ export default function ManualEntryPage() {
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <TextInput
+                    type="date"
                     label="Date of Admission"
                     value={form.admittedDate}
                     onChange={(admittedDate) => updateForm({ admittedDate })}
@@ -186,6 +187,7 @@ export default function ManualEntryPage() {
                     icon={<Calendar size={18} />}
                   />
                   <TextInput
+                    type="time"
                     label="Time of Admission"
                     value={form.admittedTime}
                     onChange={(admittedTime) => updateForm({ admittedTime })}

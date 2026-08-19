@@ -5,6 +5,7 @@ type TextInputProps = {
   placeholder?: string;
   icon?: React.ReactNode;
   rows?: number;
+  type?: string;
 };
 
 export function TextInput({
@@ -14,6 +15,7 @@ export function TextInput({
   placeholder,
   icon,
   rows,
+  type = "text",
 }: TextInputProps) {
   const inputClass = icon ? "input pl-10" : "input";
 
@@ -36,6 +38,7 @@ export function TextInput({
           />
         ) : (
           <input
+            type={type}
             value={value}
             onChange={(event) => onChange(event.target.value)}
             placeholder={placeholder}
