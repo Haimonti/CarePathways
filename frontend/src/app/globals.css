@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color: #0d1a33;
+  background: #f5f7fb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: #f5f7fb;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-ub-border bg-white shadow-none;
+  }
+
+  .input {
+    @apply w-full rounded-[10px] border border-ub-border bg-white px-4 py-3 text-sm text-ub-textPrimary outline-none transition focus:border-ub-blue focus:ring-2 focus:ring-ub-blue/15 disabled:cursor-not-allowed disabled:bg-ub-surfaceVariant;
+  }
+
+  .label {
+    @apply mb-2 block text-sm font-medium text-ub-textSecondary;
+  }
+
+  .btn-primary {
+    @apply inline-flex min-h-[52px] items-center justify-center gap-2 rounded-xl bg-ub-blue px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-ub-blueDark disabled:cursor-not-allowed disabled:opacity-65;
+  }
+
+  .btn-secondary {
+    @apply inline-flex min-h-[52px] items-center justify-center gap-2 rounded-xl border-2 border-ub-blue px-7 py-3.5 text-sm font-semibold text-ub-blue transition hover:bg-ub-blue/5 disabled:cursor-not-allowed disabled:opacity-65;
+  }
+
+  .section-label {
+    @apply flex items-center gap-2 text-[10px] font-bold uppercase tracking-[1.5px] text-ub-blue;
+  }
+}

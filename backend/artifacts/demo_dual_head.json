@@ -1,0 +1,26 @@
+{
+  "model_version": "demo-1",
+  "feature_names": [
+    "anchor_age",
+    "dx_burden",
+    "procedure_burden",
+    "med_burden",
+    "text_signal"
+  ],
+  "risk_bias": -0.35,
+  "los_bias": 3.8,
+  "risk_weights": {
+    "anchor_age": 0.015,
+    "dx_burden": 0.42,
+    "procedure_burden": 0.31,
+    "med_burden": 0.18,
+    "text_signal": 0.27
+  },
+  "los_weights": {
+    "anchor_age": 0.05,
+    "dx_burden": 1.6,
+    "procedure_burden": 1.2,
+    "med_burden": 0.7,
+    "text_signal": 0.9
+  }
+}

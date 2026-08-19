@@ -1,0 +1,29 @@
+database:
+  path: /app/data/llos_backend.db
+  default_results_limit: 20
+
+models:
+  default_model_key: lightgbm_t5
+  bundles:
+    lightgbm_t5:
+      display_name: T5 + BiLSTM + LightGBM
+      description: Current predict.ipynb LOS model.
+      adapter: t5_bilstm_lightgbm
+      model_weights_path: /app/models/los_model_weights.pt
+      lgbm_model_path: /app/models/lgbm_los_model.txt
+      extractor_config_path: /app/models/t5_extractor_config.json
+      cache_dir: /app/t5_cache
+    deep_patient:
+      display_name: Deep Patient (DAE + MLP)
+      description: >-
+        Denoising autoencoder + MLP regressor from the Aug 2026 pipeline
+        (ACTIVE_PREPROCESSING + DEEP_PATIENT). Trained on the Synthea
+        2026-04-19 MA 10k-patient export (428 train / 76 test encounters,
+        LOS >= 10 d); test RMSE 8.69, MAE 5.81. Word2Vec 300-d over six
+        clinical text sections + three demographic codes.
+      adapter: deep_patient
+      word2vec_path: /app/models/deep_patient/word2vec.model
+      scaler_path: /app/models/deep_patient/scaler.npz
+      dae_weights_path: /app/models/deep_patient/dae_state.pt
+      mlp_weights_path: /app/models/deep_patient/mlp_state.pt
+      meta_path: /app/models/deep_patient/bundle_meta.json

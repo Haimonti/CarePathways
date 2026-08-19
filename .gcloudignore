@@ -1,0 +1,28 @@
+# Explicit ignore list for `gcloud builds submit` — kept separate from
+# .gitignore on purpose. .gitignore excludes backend/cloudrun_artifacts/ (to
+# keep binaries out of git), but the Cloud Build upload MUST include that
+# directory — the Dockerfile COPYs from it. If gcloud ever falls back to
+# deriving ignore rules from .gitignore instead of this file, that COPY
+# breaks. This file is the source of truth for what Cloud Build sees.
+.venv/
+.venv2/
+.venv-backend/
+.git/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+
+# backend/cloudrun_artifacts/ is gitignored (keeps ~25MB of binaries out of
+# git), but gcloud appears to also consult .gitignore even when this file
+# exists — confirmed empirically with `gcloud meta list-files-for-upload`.
+# .gitignore's blanket *.csv/*.pt/*.txt rules apply repo-wide, not just at
+# the directory level, so negating the directory alone isn't enough — each
+# matched extension needs its own negation too, or the individual files
+# stay excluded even once the directory itself is un-ignored. The Dockerfile
+# COPYs from this exact path, so the build breaks without all of this.
+!backend/cloudrun_artifacts/
+!backend/cloudrun_artifacts/**
+!backend/cloudrun_artifacts/**/*.pt
+!backend/cloudrun_artifacts/**/*.txt
+!backend/cloudrun_artifacts/**/*.csv

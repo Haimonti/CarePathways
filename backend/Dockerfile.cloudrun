@@ -1,0 +1,62 @@
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    LLOS_BACKEND_CONFIG=/app/backend/config.cloudrun.yaml \
+    OMP_NUM_THREADS=1 \
+    KMP_DUPLICATE_LIB_OK=TRUE
+
+# libgomp1: OpenMP runtime LightGBM/torch need at import time.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY backend/requirements.txt backend/requirements.txt
+# Install the CPU-only torch wheel first — otherwise pip resolves a CUDA
+# build on Linux and drags in ~1-2GB of unused nvidia_cudnn/cublas/etc.
+# packages, which is both wasteful on a CPU-only Cloud Run instance and the
+# actual root cause of the large-download failures seen while testing this
+# build locally.
+RUN python -m pip install --upgrade pip \
+    && python -m pip install torch --index-url https://download.pytorch.org/whl/cpu \
+    && python -m pip install -r backend/requirements.txt
+
+COPY backend backend
+
+# Pre-download t5-small into the image's HF cache — needs real network access,
+# so this runs BEFORE offline mode is switched on below. Without baking this
+# in, T5EncoderModel.from_pretrained() pings the Hub on every cold start to
+# check for a newer revision — a real reliability risk for a live service.
+RUN python -c "from transformers import AutoTokenizer, T5EncoderModel; \
+    AutoTokenizer.from_pretrained('t5-small', use_fast=True); \
+    T5EncoderModel.from_pretrained('t5-small')"
+
+# From here on, force every load to come from the cache baked in above —
+# never the network. Placed after the download, not in the top ENV block.
+ENV HF_HUB_OFFLINE=1 \
+    TRANSFORMERS_OFFLINE=1
+
+# Model artifacts + dataset total ~23MB — small enough to bake into the image
+# rather than fetch from external storage at startup (unlike the Render setup,
+# which was built for a heavier-artifact assumption). Run
+# `python -m backend.tools.prepare_cloudrun_artifacts` first to stage these.
+COPY backend/cloudrun_artifacts/models /app/models
+COPY backend/cloudrun_artifacts/Dataset.csv /app/Dataset.csv
+
+# Seed the SQLite store at build time so the container starts instantly.
+# Note: predictions written at runtime live in this same SQLite file, which
+# is ephemeral per Cloud Run instance — fine for stored-record lookups
+# (baked in) and live predictions (computed fresh each request), but recent
+# prediction history won't persist across instance restarts or be shared
+# across concurrent instances. Move to Cloud SQL if that history matters later.
+RUN mkdir -p /app/data /app/t5_cache \
+    && python -m backend.tools.ingest_dataset_inputs \
+         --config backend/config.cloudrun.yaml \
+         --dataset /app/Dataset.csv
+
+# Cloud Run injects $PORT (default 8080) and requires listening on 0.0.0.0.
+EXPOSE 8080
+CMD exec python -m uvicorn backend.app.main:app --host 0.0.0.0 --port ${PORT:-8080} --app-dir .

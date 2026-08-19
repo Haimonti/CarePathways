@@ -2,3 +2,14 @@
 *.pt
 *.txt
 config.yaml
+backend/config.yaml
+backend/data/*.db
+backend/cloudrun_artifacts/
+__pycache__/
+*.pyc
+.DS_Store
+.vscode/
+.idea/
+node_modules/
+.next/
+.env*.local

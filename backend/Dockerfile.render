@@ -1,0 +1,24 @@
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    LLOS_BACKEND_CONFIG=backend/config.render.yaml \
+    LLOS_DATASET_PATH=/var/data/Dataset.csv \
+    LLOS_RENDER_DATA_DIR=/var/data
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends bash curl libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY backend/requirements.txt backend/requirements.txt
+RUN python -m pip install --upgrade pip \
+    && python -m pip install -r backend/requirements.txt
+
+COPY backend backend
+
+EXPOSE 10000
+
+CMD ["bash", "backend/scripts/start_render.sh"]

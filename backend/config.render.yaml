@@ -1,0 +1,15 @@
+database:
+  path: /var/data/llos_backend.db
+  default_results_limit: 20
+
+models:
+  default_model_key: lightgbm_t5
+  bundles:
+    lightgbm_t5:
+      display_name: T5 + BiLSTM + LightGBM
+      description: Current predict.ipynb LOS model.
+      adapter: t5_bilstm_lightgbm
+      model_weights_path: /var/data/models/los_model_weights.pt
+      lgbm_model_path: /var/data/models/lgbm_los_model.txt
+      extractor_config_path: /var/data/models/t5_extractor_config.json
+      cache_dir: /var/data/t5_cache
