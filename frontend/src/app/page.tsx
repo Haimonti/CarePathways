@@ -36,7 +36,8 @@ export default function HomePage() {
             </h2>
             <p className="mt-2.5 text-[15px] leading-6 text-ub-textSecondary">
               University at Buffalo research tool for clinical LOS prediction
-              using the T5 + BiLSTM + LightGBM pipeline.
+              using T5 + BiLSTM + LightGBM, Deep Patient, and an ensemble of
+              Random Forest, XGBoost, LightGBM and SVR models.
             </p>
           </div>
         </header>

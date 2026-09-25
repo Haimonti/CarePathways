@@ -126,6 +126,7 @@ def load_settings(config_path: str | Path | None = None) -> Settings:
             "dae_weights_path",
             "mlp_weights_path",
             "meta_path",
+            "weights_dir",
         ):
             path_value = adapter_settings.get(path_key)
             if isinstance(path_value, str) and path_value.strip():

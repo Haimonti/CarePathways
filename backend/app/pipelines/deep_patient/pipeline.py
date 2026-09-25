@@ -6,16 +6,15 @@ Word2Vec vocabulary, and concatenated after three integer-coded demographic
 features. The 1803-dim vector is standardized, passed through the frozen DAE
 encoder, and regressed to LOS days by the MLP head.
 
-Demographics are not part of the serialized_clinical_input contract; they are
-recovered from the demographic preamble present in stored records
-("... nonhispanic white male ...") and fall back to training-set modes when
-absent. They are 3 of 1803 standardized features, so the fallback impact is
+Demographics arrive as labels resolved by the inference service (request
+fields, then stored record columns, then the "... nonhispanic white male ..."
+preamble in the text) and fall back to training-set modes when absent or
+unmapped. They are 3 of 1803 standardized features, so the fallback impact is
 minimal.
 """
 from __future__ import annotations
 
 import json
-import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -24,17 +23,9 @@ import torch
 from gensim.models import Word2Vec
 from gensim.utils import simple_preprocess
 
+from ..demographics import Demographics, from_text
 from ..manual.utils import parse_sections
 from .models import DenoisingAutoencoder, MLPRegressor
-
-# Matches the demographic preamble kept by the original preprocessing,
-# e.g. "24 year-old nonhispanic white male". Bare word search is avoided
-# because race terms collide with clinical text ("white blood cells").
-DEMOGRAPHIC_PHRASE = re.compile(
-    r"\b(nonhispanic|hispanic)\s+(white|black|asian|native|other)\b"
-)
-FEMALE_PATTERN = re.compile(r"\bfemale\b")
-MALE_PATTERN = re.compile(r"\bmale\b")
 
 
 @dataclass(frozen=True)
@@ -80,32 +71,22 @@ class DeepPatientPipeline:
             return np.zeros(self.embedding_dim)
         return np.mean(vectors, axis=0)
 
-    def _extract_demographics(self, text: str) -> list[float]:
-        lowered = text.lower()
+    def _encode_demographics(self, demographics: Demographics) -> list[float]:
+        encoded = []
+        for field in ("gender", "race", "ethnicity"):
+            label = getattr(demographics, field)
+            code = self.encodings[field].get(label, self.demographic_defaults[field])
+            encoded.append(float(code))
+        return encoded
 
-        gender = float(self.demographic_defaults["gender"])
-        if FEMALE_PATTERN.search(lowered):
-            gender = float(self.encodings["gender"]["F"])
-        elif MALE_PATTERN.search(lowered):
-            gender = float(self.encodings["gender"]["M"])
-
-        race = float(self.demographic_defaults["race"])
-        ethnicity = float(self.demographic_defaults["ethnicity"])
-        match = DEMOGRAPHIC_PHRASE.search(lowered)
-        if match:
-            ethnicity = float(self.encodings["ethnicity"][match.group(1)])
-            race = float(self.encodings["race"][match.group(2)])
-
-        return [gender, race, ethnicity]
-
-    def predict_input_text(self, input_text: str) -> float:
+    def predict_input_text(self, input_text: str, demographics: Demographics | None = None) -> float:
         sections = parse_sections(input_text)
 
         field_vectors = [
             self._tokens_to_vector(simple_preprocess(sections.get(column, "")))
             for column in self.text_columns
         ]
-        physical = self._extract_demographics(input_text)
+        physical = self._encode_demographics(demographics or from_text(input_text))
         features = np.concatenate([np.asarray(physical), *field_vectors]).astype(np.float64)
 
         scaled = (features - self._scaler_mean) / self._scaler_scale

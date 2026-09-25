@@ -1,0 +1,17 @@
+fastapi>=0.115,<1.0
+uvicorn>=0.32,<1.0
+pydantic>=2.9,<3.0
+PyYAML>=6.0,<7.0
+lightgbm>=4.0,<5.0
+numpy>=2.0,<3.0
+torch>=2.2,<3.0
+transformers>=4.35,<5.0
+tqdm>=4.65,<5.0
+pytest>=8.0,<9.0
+httpx>=0.27,<1.0
+gensim>=4.4,<5.0
+# Tabular ensemble: pickles were saved with scikit-learn 1.7.1 (numpy 2 internals).
+scikit-learn==1.7.1
+xgboost>=3.1,<4.0
+pandas>=2.0,<3.0
+joblib>=1.3

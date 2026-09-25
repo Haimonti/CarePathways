@@ -11,7 +11,33 @@ export const emptyPatientForm: PatientForm = {
   admissionType: "",
   admittedTime: "",
   admittedDate: "",
+  gender: "",
+  race: "",
+  ethnicity: "",
 };
+
+export const demographicOptions = {
+  gender: [
+    ["F", "Female"],
+    ["M", "Male"],
+  ],
+  race: [
+    ["white", "White"],
+    ["black", "Black"],
+    ["asian", "Asian"],
+    ["native", "Native"],
+    ["other", "Other"],
+  ],
+  ethnicity: [
+    ["nonhispanic", "Non-Hispanic"],
+    ["hispanic", "Hispanic"],
+  ],
+} as const;
+
+const optionLabel = (
+  options: ReadonlyArray<readonly [string, string]>,
+  value: string,
+) => options.find(([optionValue]) => optionValue === value)?.[1] ?? value;
 
 export function patientFormToPayload(form: PatientForm): Record<string, string> {
   const payload: Record<string, string> = {};
@@ -29,6 +55,9 @@ export function patientFormToPayload(form: PatientForm): Record<string, string> 
   add("admission_type", form.admissionType);
   add("admitted_time", form.admittedTime);
   add("admitted_date", form.admittedDate);
+  add("gender", form.gender);
+  add("race", form.race);
+  add("ethnicity", form.ethnicity);
 
   return payload;
 }
@@ -42,6 +71,9 @@ export function labelledPatientFields(form: PatientForm): Array<[string, string]
   add("Admission Type", form.admissionType);
   add("Admission Date", form.admittedDate);
   add("Admission Time", form.admittedTime);
+  add("Gender", optionLabel(demographicOptions.gender, form.gender));
+  add("Race", optionLabel(demographicOptions.race, form.race));
+  add("Ethnicity", optionLabel(demographicOptions.ethnicity, form.ethnicity));
   add("Chief Complaint", form.chiefComplaint);
   add("History of Present Illness", form.hpi);
   add("Social History", form.socialHistory);

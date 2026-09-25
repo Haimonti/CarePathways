@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from ..model_registry import ModelRegistry
+from ..model_registry import ModelRegistry, PredictionContext
+from ..pipelines import demographics as demo
 from ..pipelines.manual.utils import build_structured_input
 from ..repositories.sqlite import SQLiteRepository
 from ..schemas import LLOS_THRESHOLD_DAYS, PredictionRequest, PredictionResponse, SECTION_FIELDS
@@ -28,6 +29,9 @@ class InferenceService:
             subject_id = str(record["subject_id"])
             hadm_id = str(record["hadm_id"])
             actual_los_days = record.get("actual_los_days")
+            known_demographics = demo.from_fields(
+                record.get("gender"), record.get("race"), record.get("ethnicity")
+            )
         else:
             input_text = self._manual_input_text(request_body)
             prediction_mode = "manual"
@@ -35,8 +39,18 @@ class InferenceService:
             subject_id = None
             hadm_id = None
             actual_los_days = None
+            known_demographics = demo.from_fields(
+                request_body.gender, request_body.race, request_body.ethnicity
+            )
 
-        predicted_los_days = model.predict(input_text=input_text, prompt=request_body.prompt)
+        output = model.predict(
+            PredictionContext(
+                input_text=input_text,
+                prompt=request_body.prompt,
+                demographics=known_demographics.merged_with(demo.from_text(input_text)),
+            )
+        )
+        predicted_los_days = output.predicted_los_days
         is_llos = predicted_los_days > LLOS_THRESHOLD_DAYS
         stored_result = self.repository.insert_prediction(
             uuid=uuid,
@@ -59,6 +73,7 @@ class InferenceService:
             actual_los_days=stored_result.actual_los_days,
             is_llos=stored_result.is_llos,
             created_at=stored_result.created_at,
+            component_predictions=output.components,
         )
 
     @staticmethod

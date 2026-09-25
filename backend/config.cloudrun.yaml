@@ -27,3 +27,53 @@ models:
       dae_weights_path: /app/models/deep_patient/dae_state.pt
       mlp_weights_path: /app/models/deep_patient/mlp_state.pt
       meta_path: /app/models/deep_patient/bundle_meta.json
+    ensemble_mean:
+      display_name: "Ensemble (RF + XGB + LGBM + SVR, mean)"
+      description: >-
+        Average of the four ensemble regressors. Isaac's tuned regressors over T5-small section embeddings (PCA 139) + token
+        counts + demographics, trained on a 5,026-encounter Synthea cohort where
+        every stay is >= 14 days. Estimates how long a long stay lasts, not
+        whether a stay will be long.
+      adapter: tabular_ensemble
+      member: mean
+      weights_dir: /app/models/ensemble
+    ensemble_rf:
+      display_name: "Ensemble member: Random Forest"
+      description: >-
+        Isaac's tuned regressors over T5-small section embeddings (PCA 139) + token
+        counts + demographics, trained on a 5,026-encounter Synthea cohort where
+        every stay is >= 14 days. Estimates how long a long stay lasts, not
+        whether a stay will be long.
+      adapter: tabular_ensemble
+      member: random_forest
+      weights_dir: /app/models/ensemble
+    ensemble_xgb:
+      display_name: "Ensemble member: XGBoost"
+      description: >-
+        Isaac's tuned regressors over T5-small section embeddings (PCA 139) + token
+        counts + demographics, trained on a 5,026-encounter Synthea cohort where
+        every stay is >= 14 days. Estimates how long a long stay lasts, not
+        whether a stay will be long.
+      adapter: tabular_ensemble
+      member: xgboost
+      weights_dir: /app/models/ensemble
+    ensemble_lgbm:
+      display_name: "Ensemble member: LightGBM"
+      description: >-
+        Isaac's tuned regressors over T5-small section embeddings (PCA 139) + token
+        counts + demographics, trained on a 5,026-encounter Synthea cohort where
+        every stay is >= 14 days. Estimates how long a long stay lasts, not
+        whether a stay will be long.
+      adapter: tabular_ensemble
+      member: lightgbm
+      weights_dir: /app/models/ensemble
+    ensemble_svr:
+      display_name: "Ensemble member: SVR"
+      description: >-
+        Isaac's tuned regressors over T5-small section embeddings (PCA 139) + token
+        counts + demographics, trained on a 5,026-encounter Synthea cohort where
+        every stay is >= 14 days. Estimates how long a long stay lasts, not
+        whether a stay will be long.
+      adapter: tabular_ensemble
+      member: svr
+      weights_dir: /app/models/ensemble

@@ -28,6 +28,45 @@ class FakeManualPipeline:
         return 16.25 if "long stay" in input_text else 4.5
 
 
+class FakeEnsemblePipeline:
+    calls: list[tuple[dict, object]] = []
+    components = {"random_forest": 20.0, "xgboost": 22.0, "lightgbm": 18.0, "svr": 16.0}
+
+    def predict_components(self, sections: dict, demographics: object) -> dict[str, float]:
+        self.calls.append((sections, demographics))
+        return dict(self.components)
+
+
+ENSEMBLE_FILES = (
+    "text_embedding_scaler.joblib",
+    "text_pca.joblib",
+    "rf_model.joblib",
+    "xgb_model.json",
+    "lgb_model.txt",
+    "svr_model.joblib",
+    "svr_scaler.joblib",
+)
+
+
+def _add_ensemble_bundles(config_path: Path, missing_artifact: bool = False) -> None:
+    weights_dir = config_path.parent / "models" / "ensemble"
+    weights_dir.mkdir(parents=True, exist_ok=True)
+    for name in ENSEMBLE_FILES[: -1 if missing_artifact else None]:
+        (weights_dir / name).write_text("fake", encoding="utf-8")
+
+    lines = []
+    for key, member in (("ensemble_mean", "mean"), ("ensemble_xgb", "xgboost")):
+        lines += [
+            f"    {key}:",
+            f"      display_name: {key}",
+            "      adapter: tabular_ensemble",
+            f"      member: {member}",
+            "      weights_dir: ./models/ensemble",
+        ]
+    with config_path.open("a", encoding="utf-8") as handle:
+        handle.write("\n" + "\n".join(lines) + "\n")
+
+
 def _write_dataset(path: Path) -> None:
     rows = [
         {
@@ -335,3 +374,91 @@ def test_public_schemas_do_not_expose_legacy_branch_fields(app_client: TestClien
         "input_contract",
         "is_default",
     }
+
+
+@pytest.fixture()
+def ensemble_client(configured_backend: dict[str, Path], monkeypatch: pytest.MonkeyPatch) -> TestClient:
+    monkeypatch.setattr(
+        "backend.app.pipelines.ensemble.pipeline.load_ensemble_pipeline",
+        lambda weights_dir: FakeEnsemblePipeline(),
+    )
+    FakeEnsemblePipeline.calls = []
+    _add_ensemble_bundles(configured_backend["config_path"])
+    return TestClient(create_app(str(configured_backend["config_path"])))
+
+
+def test_load_settings_resolves_ensemble_weights_dir(tmp_path: Path) -> None:
+    config_path = _write_config(tmp_path)
+    _add_ensemble_bundles(config_path)
+    bundle = load_settings(str(config_path)).model_bundles["ensemble_mean"]
+
+    assert bundle.adapter == "tabular_ensemble"
+    assert bundle.adapter_settings["member"] == "mean"
+    assert bundle.adapter_settings["weights_dir"] == tmp_path / "models" / "ensemble"
+
+
+def test_model_registry_missing_ensemble_artifact_fails_clearly(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("backend.app.model_registry.ManualPipeline", FakeManualPipeline)
+    config_path = _write_config(tmp_path)
+    _add_ensemble_bundles(config_path, missing_artifact=True)
+
+    with pytest.raises(FileNotFoundError, match="Missing ensemble artifacts"):
+        ModelRegistry(load_settings(str(config_path)))
+
+
+def test_models_lists_ensemble_bundles(ensemble_client: TestClient) -> None:
+    keys = [item["model_key"] for item in ensemble_client.get("/models").json()["items"]]
+
+    assert keys == ["lightgbm_t5", "ensemble_mean", "ensemble_xgb"]
+
+
+def test_ensemble_mean_returns_average_and_components(ensemble_client: TestClient) -> None:
+    response = ensemble_client.post("/predictions", json={"uuid": 1, "model_key": "ensemble_mean"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["predicted_los_days"] == 19.0
+    assert payload["component_predictions"] == FakeEnsemblePipeline.components
+    sections, demographics = FakeEnsemblePipeline.calls[-1]
+    assert sections["hpi"] == "long stay risk"
+    # Stored records use their demographic columns.
+    assert (demographics.gender, demographics.race, demographics.ethnicity) == ("M", "white", "nonhispanic")
+
+
+def test_ensemble_member_returns_single_prediction(ensemble_client: TestClient) -> None:
+    response = ensemble_client.post("/predictions", json={"uuid": 2, "model_key": "ensemble_xgb"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["predicted_los_days"] == 22.0
+    assert payload["component_predictions"] is None
+
+
+def test_manual_demographic_fields_take_precedence_over_text(ensemble_client: TestClient) -> None:
+    response = ensemble_client.post(
+        "/predictions",
+        json={
+            "model_key": "ensemble_mean",
+            "hpi": "Ama is a 40 year-old hispanic black female.",
+            "gender": "m",
+        },
+    )
+
+    assert response.status_code == 200
+    _, demographics = FakeEnsemblePipeline.calls[-1]
+    assert (demographics.gender, demographics.race, demographics.ethnicity) == ("M", "black", "hispanic")
+
+
+def test_demographic_fields_with_uuid_return_422(ensemble_client: TestClient) -> None:
+    response = ensemble_client.post("/predictions", json={"uuid": 1, "gender": "F"})
+
+    assert response.status_code == 422
+
+
+def test_demographic_fields_alone_are_not_manual_input(ensemble_client: TestClient) -> None:
+    response = ensemble_client.post("/predictions", json={"gender": "F", "race": "white"})
+
+    assert response.status_code == 422

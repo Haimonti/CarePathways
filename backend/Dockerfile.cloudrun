@@ -39,7 +39,7 @@ RUN python -c "from transformers import AutoTokenizer, T5EncoderModel; \
 ENV HF_HUB_OFFLINE=1 \
     TRANSFORMERS_OFFLINE=1
 
-# Model artifacts + dataset total ~23MB — small enough to bake into the image
+# Model artifacts + dataset total ~31MB — small enough to bake into the image
 # rather than fetch from external storage at startup (unlike the Render setup,
 # which was built for a heavier-artifact assumption). Run
 # `python -m backend.tools.prepare_cloudrun_artifacts` first to stage these.

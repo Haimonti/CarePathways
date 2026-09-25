@@ -182,6 +182,7 @@ export default function RecordsPage() {
                     isLlos={result.is_llos}
                     actualDays={result.actual_los_days}
                     modelLabel={selectedModel?.display_name ?? result.model_key}
+                    components={result.component_predictions}
                     statRows={{
                       "Dataset UUID": `${result.uuid}`,
                       "Equivalent Weeks": `${predictionWeeks(result)} wks`,

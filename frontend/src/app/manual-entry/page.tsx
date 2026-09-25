@@ -17,6 +17,7 @@ import { UbHeader } from "@/components/UbHeader";
 import { TextInput } from "@/components/FormControls";
 import { getModels, predictManual } from "@/lib/api";
 import {
+  demographicOptions,
   emptyPatientForm,
   labelledPatientFields,
   patientFormToPayload,
@@ -30,6 +31,9 @@ const stepLabels = [
   "History",
   "Review & Predict",
 ];
+
+const totalFieldCount = Object.keys(emptyPatientForm).length;
+const demographicKeys = ["gender", "race", "ethnicity"];
 
 const admissionTypes = [
   "Inpatient",
@@ -100,7 +104,7 @@ export default function ManualEntryPage() {
 
   async function runPrediction() {
     const payload = patientFormToPayload(form);
-    if (Object.keys(payload).length === 0) {
+    if (!Object.keys(payload).some((key) => !demographicKeys.includes(key))) {
       setErrorMessage(
         "Please fill in at least one clinical field before predicting.",
       );
@@ -143,7 +147,7 @@ export default function ManualEntryPage() {
             <StepShell
               eyebrow="Step 01 — Admission"
               title="How was the patient admitted?"
-              description="Admission context signals acuity and care pathway. Select the type and enter the date and time of arrival."
+              description="Admission context signals acuity and care pathway. Select the type, enter the date and time of arrival, and optionally the patient's demographics."
               showBack={false}
               onNext={() => setCurrentStep(1)}
             >
@@ -193,6 +197,35 @@ export default function ManualEntryPage() {
                     onChange={(admittedTime) => updateForm({ admittedTime })}
                     placeholder="e.g. 14:30"
                     icon={<Clock size={18} />}
+                  />
+                </div>
+              </div>
+              <div className="card mt-3 p-5">
+                <div className="mb-1 text-[10px] font-bold uppercase tracking-[1.2px] text-ub-textMuted">
+                  Demographics (optional)
+                </div>
+                <p className="mb-3.5 text-[11px] text-ub-textMuted">
+                  Used by the Deep Patient and ensemble models. Left blank, they
+                  are read from the HPI text when possible.
+                </p>
+                <div className="space-y-3">
+                  <ChoicePills
+                    label="Gender"
+                    options={demographicOptions.gender}
+                    value={form.gender}
+                    onChange={(gender) => updateForm({ gender })}
+                  />
+                  <ChoicePills
+                    label="Race"
+                    options={demographicOptions.race}
+                    value={form.race}
+                    onChange={(race) => updateForm({ race })}
+                  />
+                  <ChoicePills
+                    label="Ethnicity"
+                    options={demographicOptions.ethnicity}
+                    value={form.ethnicity}
+                    onChange={(ethnicity) => updateForm({ ethnicity })}
                   />
                 </div>
               </div>
@@ -304,7 +337,7 @@ export default function ManualEntryPage() {
                     Completed Fields
                   </div>
                   <span className="rounded-full bg-ub-blue/10 px-2.5 py-1 text-[11px] font-bold text-ub-blue">
-                    {filledFieldCount} / 10
+                    {filledFieldCount} / {totalFieldCount}
                   </span>
                 </div>
                 <div className="mt-3">
@@ -380,8 +413,9 @@ export default function ManualEntryPage() {
                       predictedDays={result.predicted_los_days}
                       isLlos={result.is_llos}
                       modelLabel={selectedModel?.display_name ?? result.model_key}
+                      components={result.component_predictions}
                       statRows={{
-                        "Fields Used": `${filledFieldCount}/10`,
+                        "Fields Used": `${filledFieldCount}/${totalFieldCount}`,
                         "Equivalent Weeks": `${(
                           result.predicted_los_days / 7
                         ).toFixed(1)} wks`,
@@ -434,6 +468,48 @@ export default function ManualEntryPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+function ChoicePills({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: ReadonlyArray<readonly [string, string]>;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div>
+      <div className="mb-1.5 text-[11px] font-semibold text-ub-textSecondary">
+        {label}
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {options.map(([optionValue, optionLabel]) => {
+          const selected = value === optionValue;
+          return (
+            <button
+              key={optionValue}
+              type="button"
+              aria-pressed={selected}
+              // Clicking the selected option again clears it.
+              onClick={() => onChange(selected ? "" : optionValue)}
+              className={[
+                "rounded-full border px-3.5 py-2 text-[13px] font-medium transition",
+                selected
+                  ? "border-ub-blue bg-ub-blue text-white"
+                  : "border-ub-border bg-ub-surfaceVariant text-ub-textSecondary hover:border-ub-blue/40",
+              ].join(" ")}
+            >
+              {optionLabel}
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 

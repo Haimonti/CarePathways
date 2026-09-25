@@ -1,6 +1,7 @@
 *.csv
 *.pt
 *.txt
+!requirements.txt
 config.yaml
 backend/config.yaml
 backend/data/*.db

@@ -6,6 +6,14 @@ type PredictionCardProps = {
   actualDays?: number | null;
   modelLabel?: string | null;
   statRows?: Record<string, string>;
+  components?: Record<string, number> | null;
+};
+
+const componentLabels: Record<string, string> = {
+  random_forest: "Random Forest",
+  xgboost: "XGBoost",
+  lightgbm: "LightGBM",
+  svr: "SVR",
 };
 
 export function PredictionCard({
@@ -14,6 +22,7 @@ export function PredictionCard({
   actualDays,
   modelLabel,
   statRows = {},
+  components,
 }: PredictionCardProps) {
   const weeks = (predictedDays / 7).toFixed(1);
   const hours = Math.round(predictedDays * 24);
@@ -55,6 +64,29 @@ export function PredictionCard({
           />
         ) : null}
       </div>
+
+      {components && Object.keys(components).length > 0 ? (
+        <div className="mt-4 rounded-xl bg-white/10 px-4 py-3">
+          <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.8px] text-white/55">
+            Model Breakdown
+          </div>
+          <div className="space-y-1.5">
+            {Object.entries(components).map(([key, days]) => (
+              <div
+                key={key}
+                className="flex items-center justify-between gap-4 text-xs"
+              >
+                <span className="text-white/70">
+                  {componentLabels[key] ?? key}
+                </span>
+                <span className="font-semibold text-white">
+                  {days.toFixed(1)} d
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       {Object.keys(statRows).length > 0 ? (
         <div className="mt-4 space-y-1.5">

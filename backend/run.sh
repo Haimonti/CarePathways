@@ -20,5 +20,10 @@ echo "  Predict: POST /predictions"
 echo "  Records: GET /records"
 echo ""
 
+# torch and xgboost/lightgbm each ship their own libomp on macOS; loading both
+# segfaults in xgboost's load_model without these (Dockerfile.cloudrun sets them too).
+export OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}"
+export KMP_DUPLICATE_LIB_OK=TRUE
+
 cd "$SCRIPT_DIR"
 uvicorn app.main:app --host 0.0.0.0 --port "$PORT" --reload

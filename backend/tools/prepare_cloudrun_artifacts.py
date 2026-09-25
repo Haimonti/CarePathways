@@ -2,7 +2,7 @@
 
 Docker's build context can't reach outside the directory containing the
 Dockerfile, but the canonical model/data files live on this machine at
-/Users/william/Documents/LLOS/data/. This copies the ~23MB of artifacts the
+/Users/william/Documents/LLOS/data/. This copies the ~31MB of artifacts the
 backend needs into backend/cloudrun_artifacts/ (gitignored — regenerate
 locally before each build rather than committing large binaries to git).
 
@@ -30,17 +30,30 @@ DEEP_PATIENT_FILES = [
     "mlp_state.pt",
     "bundle_meta.json",
 ]
+ENSEMBLE_FILES = [
+    "text_embedding_scaler.joblib",
+    "text_pca.joblib",
+    "rf_model.joblib",
+    "xgb_model.json",
+    "lgb_model.txt",
+    "svr_model.joblib",
+    "svr_scaler.joblib",
+]
 
 
 def main() -> None:
     dest_models = DEST_DIR / "models"
     dest_dp = dest_models / "deep_patient"
     dest_dp.mkdir(parents=True, exist_ok=True)
+    dest_ensemble = dest_models / "ensemble"
+    dest_ensemble.mkdir(parents=True, exist_ok=True)
 
     for name in FILES_TO_COPY:
         shutil.copy2(SOURCE_MODELS / name, dest_models / name)
     for name in DEEP_PATIENT_FILES:
         shutil.copy2(SOURCE_MODELS / "deep_patient" / name, dest_dp / name)
+    for name in ENSEMBLE_FILES:
+        shutil.copy2(SOURCE_MODELS / "ensemble" / name, dest_ensemble / name)
     shutil.copy2(SOURCE_DATASET, DEST_DIR / "Dataset.csv")
 
     total_bytes = sum(f.stat().st_size for f in DEST_DIR.rglob("*") if f.is_file())

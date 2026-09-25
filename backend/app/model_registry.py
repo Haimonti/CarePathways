@@ -4,10 +4,25 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict
 
+from .pipelines.demographics import Demographics
 from .pipelines.manual.config import DEFAULT_T5_PROMPT
 from .pipelines.manual.pipeline import ManualPipeline
+from .pipelines.manual.utils import parse_sections
 from .schemas import ModelInfo
 from .settings import ModelBundleSettings, Settings
+
+
+@dataclass(frozen=True)
+class PredictionContext:
+    input_text: str
+    prompt: str = DEFAULT_T5_PROMPT
+    demographics: Demographics = Demographics()
+
+
+@dataclass(frozen=True)
+class ModelOutput:
+    predicted_los_days: float
+    components: dict[str, float] | None = None
 
 
 @dataclass(frozen=True)
@@ -60,8 +75,10 @@ class T5BilstmLightGbmAdapter:
             missing_text = ", ".join(str(path) for path in missing)
             raise FileNotFoundError(f"Missing T5 + LightGBM artifacts: {missing_text}")
 
-    def predict(self, input_text: str, prompt: str = DEFAULT_T5_PROMPT) -> float:
-        return self.pipeline.predict_input_text(input_text=input_text, prompt=prompt)
+    def predict(self, context: PredictionContext) -> ModelOutput:
+        return ModelOutput(
+            self.pipeline.predict_input_text(input_text=context.input_text, prompt=context.prompt)
+        )
 
 
 class DeepPatientAdapter:
@@ -92,14 +109,63 @@ class DeepPatientAdapter:
             paths[key] = value
         self.pipeline = DeepPatientPipeline(DeepPatientPipelineSettings(**paths))
 
-    def predict(self, input_text: str, prompt: str = DEFAULT_T5_PROMPT) -> float:
-        # `prompt` is part of the shared adapter interface; Deep Patient has no prompt.
-        return self.pipeline.predict_input_text(input_text=input_text)
+    def predict(self, context: PredictionContext) -> ModelOutput:
+        # Deep Patient has no prompt; demographics feed its three physical features.
+        return ModelOutput(
+            self.pipeline.predict_input_text(
+                input_text=context.input_text,
+                demographics=context.demographics,
+            )
+        )
+
+
+class EnsembleAdapter:
+    """Isaac's RF + XGBoost + LightGBM + SVR regressors over a shared T5/PCA feature set.
+
+    `member` selects one regressor, or `mean` to average all four and report each
+    one's prediction as components. Bundles with the same `weights_dir` share a
+    single loaded pipeline.
+    """
+
+    input_contract = "serialized_clinical_input"
+
+    def __init__(self, settings: ModelBundleSettings):
+        from .pipelines.ensemble.pipeline import (
+            MEMBERS,
+            REQUIRED_FILES,
+            load_ensemble_pipeline,
+        )
+
+        self.settings = settings
+        weights_dir = settings.adapter_settings.get("weights_dir")
+        if not isinstance(weights_dir, Path):
+            raise RuntimeError(f"Model `{settings.key}` must define `weights_dir`.")
+        missing = [str(weights_dir / name) for name in REQUIRED_FILES if not (weights_dir / name).is_file()]
+        if missing:
+            raise FileNotFoundError(f"Missing ensemble artifacts: {', '.join(missing)}")
+
+        self.member = str(settings.adapter_settings.get("member", "mean"))
+        if self.member != "mean" and self.member not in MEMBERS:
+            supported = ", ".join(("mean", *MEMBERS))
+            raise RuntimeError(
+                f"Model `{settings.key}` has unsupported member `{self.member}`. Supported: {supported}."
+            )
+        self.pipeline = load_ensemble_pipeline(weights_dir)
+
+    def predict(self, context: PredictionContext) -> ModelOutput:
+        components = self.pipeline.predict_components(
+            sections=parse_sections(context.input_text),
+            demographics=context.demographics,
+        )
+        if self.member == "mean":
+            return ModelOutput(sum(components.values()) / len(components), components)
+        return ModelOutput(components[self.member])
 
 
 ADAPTERS = {
     "t5_bilstm_lightgbm": T5BilstmLightGbmAdapter,
     "deep_patient": DeepPatientAdapter,
+    "tabular_ensemble": EnsembleAdapter,
 }
 
 
@@ -112,8 +178,8 @@ class RegisteredModel:
     def input_contract(self) -> str:
         return str(self.adapter_instance.input_contract)
 
-    def predict(self, input_text: str, prompt: str = DEFAULT_T5_PROMPT) -> float:
-        return self.adapter_instance.predict(input_text=input_text, prompt=prompt)
+    def predict(self, context: PredictionContext) -> ModelOutput:
+        return self.adapter_instance.predict(context)
 
     def to_model_info(self, default_model_key: str) -> ModelInfo:
         return ModelInfo(

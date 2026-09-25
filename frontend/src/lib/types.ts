@@ -9,6 +9,9 @@ export type PatientForm = {
   admissionType: string;
   admittedTime: string;
   admittedDate: string;
+  gender: string;
+  race: string;
+  ethnicity: string;
 };
 
 export type ModelInfo = {
@@ -44,6 +47,7 @@ export type PredictionResult = {
   actual_los_days?: number | null;
   is_llos: boolean;
   created_at: string;
+  component_predictions?: Record<string, number> | null;
 };
 
 export type RecordsResponse = {

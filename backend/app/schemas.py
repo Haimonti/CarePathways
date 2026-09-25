@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import List
+from typing import Dict, List
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -19,6 +19,8 @@ SECTION_FIELDS = (
     "admitted_time",
     "admitted_date",
 )
+# Optional labels for models with demographic features; manual mode only.
+DEMOGRAPHIC_FIELDS = ("gender", "race", "ethnicity")
 
 
 class PredictionRequest(BaseModel):
@@ -35,6 +37,9 @@ class PredictionRequest(BaseModel):
     admission_type: str = ""
     admitted_time: str = ""
     admitted_date: str = ""
+    gender: str = ""
+    race: str = ""
+    ethnicity: str = ""
     prompt: str = "predict patient length of stay: "
 
     @model_validator(mode="after")
@@ -48,7 +53,13 @@ class PredictionRequest(BaseModel):
         )
         has_manual_input = has_raw_input or has_section_input
 
-        if has_uuid and has_manual_input:
+        has_demographics = any(
+            isinstance(getattr(self, field_name), str)
+            and bool(getattr(self, field_name).strip())
+            for field_name in DEMOGRAPHIC_FIELDS
+        )
+
+        if has_uuid and (has_manual_input or has_demographics):
             raise ValueError("Send either uuid or manual input fields, not both.")
         if not has_uuid and not has_manual_input:
             raise ValueError("Prediction requires uuid, raw input, or at least one clinical section field.")
@@ -65,6 +76,8 @@ class PredictionResponse(BaseModel):
     actual_los_days: float | None = None
     is_llos: bool
     created_at: datetime
+    # Per-member predictions for ensemble models; not persisted to history.
+    component_predictions: Dict[str, float] | None = None
 
 
 class ResultItem(BaseModel):
