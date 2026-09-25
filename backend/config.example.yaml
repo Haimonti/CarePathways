@@ -24,7 +24,7 @@ models:
       member: mean
       weights_dir: /Users/william/Documents/LLOS/data/models/ensemble
     ensemble_rf:
-      display_name: "Ensemble member: Random Forest"
+      display_name: "Random Forest"
       description: >-
         Isaac's tuned regressors over T5-small section embeddings (PCA 139) + token
         counts + demographics, trained on a 5,026-encounter Synthea cohort where
@@ -34,7 +34,7 @@ models:
       member: random_forest
       weights_dir: /Users/william/Documents/LLOS/data/models/ensemble
     ensemble_xgb:
-      display_name: "Ensemble member: XGBoost"
+      display_name: "XGBoost"
       description: >-
         Isaac's tuned regressors over T5-small section embeddings (PCA 139) + token
         counts + demographics, trained on a 5,026-encounter Synthea cohort where
@@ -44,7 +44,7 @@ models:
       member: xgboost
       weights_dir: /Users/william/Documents/LLOS/data/models/ensemble
     ensemble_lgbm:
-      display_name: "Ensemble member: LightGBM"
+      display_name: "LightGBM"
       description: >-
         Isaac's tuned regressors over T5-small section embeddings (PCA 139) + token
         counts + demographics, trained on a 5,026-encounter Synthea cohort where
@@ -54,7 +54,7 @@ models:
       member: lightgbm
       weights_dir: /Users/william/Documents/LLOS/data/models/ensemble
     ensemble_svr:
-      display_name: "Ensemble member: SVR"
+      display_name: "SVR"
       description: >-
         Isaac's tuned regressors over T5-small section embeddings (PCA 139) + token
         counts + demographics, trained on a 5,026-encounter Synthea cohort where
