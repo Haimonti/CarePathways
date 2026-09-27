@@ -2,6 +2,7 @@ import type {
   DatasetRecord,
   ModelsResponse,
   PredictionResult,
+  RecordDetail,
   RecordsResponse,
 } from "./types";
 
@@ -57,6 +58,10 @@ export function searchRecords(query: string, limit = 30, offset = 0) {
   });
   if (query.trim()) params.set("query", query.trim());
   return request<RecordsResponse>(`/records?${params.toString()}`);
+}
+
+export function getRecord(uuid: number) {
+  return request<RecordDetail>(`/records/${uuid}`);
 }
 
 export function predictRecord(uuid: number, modelKey?: string) {

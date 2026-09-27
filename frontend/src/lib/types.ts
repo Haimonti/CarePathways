@@ -37,6 +37,10 @@ export type DatasetRecord = {
   admission_type?: string | null;
 };
 
+export type RecordDetail = DatasetRecord & {
+  input_text?: string | null;
+};
+
 export type PredictionResult = {
   prediction_id: number;
   uuid?: number | null;

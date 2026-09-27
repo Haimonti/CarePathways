@@ -1,20 +1,26 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { BarChart3, CheckCircle, Info, Search } from "lucide-react";
+import { BarChart3, CheckCircle, FileText, Info, Search } from "lucide-react";
 import { ErrorBanner } from "@/components/ErrorBanner";
 import { PredictionCard } from "@/components/PredictionCard";
 import { SectionLabel } from "@/components/SectionLabel";
 import { UbHeader } from "@/components/UbHeader";
-import { getModels, predictRecord, searchRecords } from "@/lib/api";
+import { getModels, getRecord, predictRecord, searchRecords } from "@/lib/api";
 import {
   absoluteError,
   formatDate,
+  parseClinicalSections,
   predictionHours,
   predictionWeeks,
   recordDisplay,
 } from "@/lib/format";
-import type { DatasetRecord, ModelInfo, PredictionResult } from "@/lib/types";
+import type {
+  DatasetRecord,
+  ModelInfo,
+  PredictionResult,
+  RecordDetail,
+} from "@/lib/types";
 
 export default function RecordsPage() {
   const [query, setQuery] = useState("");
@@ -24,6 +30,8 @@ export default function RecordsPage() {
   const [selectedRecord, setSelectedRecord] = useState<DatasetRecord | null>(
     null,
   );
+  const [recordDetail, setRecordDetail] = useState<RecordDetail | null>(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
   const [selectedModelKey, setSelectedModelKey] = useState("");
   const [result, setResult] = useState<PredictionResult | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -63,6 +71,34 @@ export default function RecordsPage() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    setRecordDetail(null);
+    if (!selectedRecord) return;
+
+    let cancelled = false;
+    setLoadingDetail(true);
+    getRecord(selectedRecord.uuid)
+      .then((detail) => {
+        if (!cancelled) setRecordDetail(detail);
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          setErrorMessage(
+            error instanceof Error
+              ? error.message
+              : "Failed to load the record's clinical notes.",
+          );
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingDetail(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedRecord]);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -158,6 +194,7 @@ export default function RecordsPage() {
           <div className="mt-6">
             <SectionLabel>2. Confirm Record</SectionLabel>
             <RecordSummary record={selectedRecord} />
+            <ClinicalRecord detail={recordDetail} loading={loadingDetail} />
 
             <div className="mt-6">
               <SectionLabel>3. Configure Model</SectionLabel>
@@ -318,12 +355,76 @@ function RecordSummary({ record }: { record: DatasetRecord }) {
         ) : null}
         {record.gender ? <InfoRow label="Gender" value={record.gender} /> : null}
         {record.race ? <InfoRow label="Race" value={record.race} /> : null}
+        {record.ethnicity ? (
+          <InfoRow label="Ethnicity" value={record.ethnicity} />
+        ) : null}
         {record.admission_type ? (
           <InfoRow label="Admission Type" value={record.admission_type} />
         ) : null}
       </div>
     </div>
   );
+}
+
+function ClinicalRecord({
+  detail,
+  loading,
+}: {
+  detail: RecordDetail | null;
+  loading: boolean;
+}) {
+  const sections = detail?.input_text
+    ? parseClinicalSections(detail.input_text)
+    : [];
+
+  return (
+    <div className="card mt-3 p-[18px]">
+      <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[1.2px] text-ub-textMuted">
+        <FileText size={13} />
+        Clinical Record
+      </div>
+      {loading ? (
+        <div className="mt-3 h-1 overflow-hidden rounded-full bg-ub-surfaceVariant">
+          <div className="h-full w-1/2 animate-pulse rounded-full bg-ub-blue" />
+        </div>
+      ) : sections.length === 0 ? (
+        <p className="mt-3 text-xs italic text-ub-textMuted">
+          No clinical notes stored for this record.
+        </p>
+      ) : (
+        <div className="mt-1">
+          {sections.map((section) => (
+            <div
+              key={section.key}
+              className="grid gap-1 border-t border-ub-border py-2.5 text-xs first:border-t-0 sm:grid-cols-[150px_1fr]"
+            >
+              <span className="text-[11px] font-bold text-ub-textMuted">
+                {section.label}
+              </span>
+              {section.items.length === 1 ? (
+                <span className={noteClass(section.items[0])}>
+                  {section.items[0]}
+                </span>
+              ) : (
+                <ul className="list-disc space-y-0.5 pl-4 text-ub-textPrimary">
+                  {section.items.map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Synthea writes placeholders like "No vitals recorded"; show them muted.
+function noteClass(value: string) {
+  return /^no\b/i.test(value)
+    ? "italic text-ub-textMuted"
+    : "leading-5 text-ub-textPrimary";
 }
 
 function InfoRow({ label, value }: { label: string; value: string }) {
